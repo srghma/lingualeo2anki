@@ -18,7 +18,8 @@ SAVE_PICTURES = True
 def handle(package):
     #parsing package if it have data, else - exit from func
     if not package.haslayer(Raw): return
-    raw = str(package.getlayer(Raw).load)
+    raw = str(package.getlayer(Raw).load.decode("utf-8"))
+    
     if "word" not in raw or not "context" in raw: return
     s = raw.lstrip("b'").rstrip("'").split("&")  # delete b' on  and '
     try:
@@ -40,9 +41,9 @@ def handle(package):
         "sound_url": ''  # for future
     }
 
-    if (SUPPORT_HTML):
-        data['context'] = data['context'].replace(
-            data['request_word'], "<b>" + data['request_word'] + "</b>")
+    #HTML support
+    data['context'] = data['context'].replace(
+        data['request_word'], "<b>" + data['request_word'] + "</b>")
 
     orig_transl = get_word_info(request_word)
     data['sound_url'] = orig_transl.get('sound_url', None)
@@ -105,8 +106,6 @@ if __name__ == '__main__':
                       help="save images to DIRECTORY", metavar="FILE")
     parser.add_argument("-j", "--join", dest="join_symbol", default=JOIN_SYMBOL,
                       help="a symbol which connects up words")
-    parser.add_argument("--nohtml", action="store_false", dest="support_html", default=SUPPORT_HTML,
-                      help="don`t mark words in context")
     parser.add_argument("--nopic", action="store_false", dest="save_pictures", default=SAVE_PICTURES,
                       help="don't save pictures in folder (Anki folder in default)")
     opts = parser.parse_args()
@@ -114,7 +113,6 @@ if __name__ == '__main__':
     FILE_PATH = path.abspath(opts.file_path)
     IMAGE_DIR_PATH = path.abspath(opts.image_dir_path)
     JOIN_SYMBOL = opts.join_symbol
-    SUPPORT_HTML = opts.support_html
     SAVE_PICTURES = opts.save_pictures
 
     if (not path.isfile(FILE_PATH)):

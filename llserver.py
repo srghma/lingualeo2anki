@@ -121,12 +121,13 @@ if __name__ == '__main__':
         open(FILE_PATH, 'a').close()  # create if doesn't exist
     if (not path.isdir(IMAGE_DIR_PATH)):
         sys.exit("%s is wrong path to save images" % IMAGE_DIR_PATH)
-
+    
+    host = socket.gethostbyname("api.lingualeo.com")
     print("Word data will be writen to %s" % FILE_PATH)
     print("Images will be saved to %s" % IMAGE_DIR_PATH)
-    print("Packages will be filtered by %s host" % HOST)
+    print("Packages will be filtered by %s host" % host)
     try:
-        filter = "dst host " + socket.gethostbyname("api.lingualeo.com")
+        filter = "dst host " + host
         sniff(iface="wlp3s0", filter=filter, prn=handle)
     except KeyboardInterrupt:
         sys.exit(0)

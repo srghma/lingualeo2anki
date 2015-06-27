@@ -6,8 +6,9 @@ import requests
 import simplejson as json
 from os import path, getcwd
 from pprintpp import pprint as pp
+import socket
 
-FILE_PATH = path.join(os.getcwd(), 'anki.csv')
+FILE_PATH = path.join(path.expanduser('~'), 'anki.csv')
 IMAGE_DIR_PATH = path.join(path.expanduser('~'), 'Documents', 'Anki', 'User 1', 'collection.media')
 JOIN_SYMBOL = '|'
 
@@ -119,11 +120,13 @@ if __name__ == '__main__':
     if (not path.isfile(FILE_PATH)):
         open(FILE_PATH, 'a').close()  # create if doesn't exist
     if (not path.isdir(IMAGE_DIR_PATH)):
-        sys.exit("Wrong path to save images")
+        sys.exit("%s is wrong path to save images" % IMAGE_DIR_PATH)
 
+    print("Word data will be writen to %s" % FILE_PATH)
+    print("Images will be saved to %s" % IMAGE_DIR_PATH)
+    print("Packages will be filtered by %s host" % HOST)
     try:
-        filter = "dst host 54.194.119.184"
-        # filter = "dst api.lingualeo.com"
+        filter = "dst host " + socket.gethostbyname("api.lingualeo.com")
         sniff(iface="wlp3s0", filter=filter, prn=handle)
     except KeyboardInterrupt:
         sys.exit(0)

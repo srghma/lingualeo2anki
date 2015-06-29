@@ -7,8 +7,8 @@ from os import path
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from pprintpp import pprint as pp
 
-FILE_PATH = path.join(path.expanduser('~'), 'anki.csv')
-IMAGE_DIR_PATH = path.join(path.expanduser('~'), 'Documents', 'Anki', 'User 1', 'collection.media')
+FILE_PATH = path.join(path.dirname(path.realpath(__file__)), 'anki.csv')
+IMAGE_DIR_PATH = path.join(path.expanduser('~'), 'Documents', 'Anki', '1-й пользователь', 'media')
 JOIN_SYMBOL = '|'
 
 SUPPORT_HTML = True
@@ -16,7 +16,6 @@ SAVE_PICTURES = True
 
 class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
-        self.send_cap()
         data = {
             "orig_word": None,
             "word": None,
@@ -34,18 +33,18 @@ class Handler(SimpleHTTPRequestHandler):
         data['context'] = interception['context_title'][0]
         if (SUPPORT_HTML):
             data['context'] = data['context'].replace(
-                data['request_word'], "<b>" + data['request_word'] + "</b>")
-        
-        orig_transl = get_word_info(request_word)
+                data['orig_word'], "<b>" + data['orig_word'] + "</b>")
+
+        orig_transl = self.get_word_info(interception['word'])
         data['sound_url'] = orig_transl.get('sound_url', None)
-        
+
         try:
-            transl = get_word_info(orig_transl['word_forms'][0]['word'])
+            transl = self.get_word_info(orig_transl['word_forms'][0]['word'])
             pic_url = transl.get('pic_url', None)
             pic_name = pic_url.split('/')[-1] if pic_url else ''
             if (SAVE_PICTURES and pic_name):
-                dowload_pic(pic_url, pic_name)
-        
+                self.dowload_pic(pic_url, pic_name)
+
             data['pic_name'] = pic_name
             data['word'] = transl['word_forms'][0]['word']
             data['type'] = transl['word_forms'][0]['type']
@@ -53,15 +52,16 @@ class Handler(SimpleHTTPRequestHandler):
                 [t['value'] for t in transl['translate']])
             data['transcription'] = transl['transcription']
         except IndexError:
-            data['word'] = data['request_word']
-        
+            data['word'] = data['orig_word']
+            data['translations'] = ''
+
         pp(data)
         line = data['word'] + JOIN_SYMBOL + \
             data['translations'] + JOIN_SYMBOL + \
             data['transcription'] + JOIN_SYMBOL + \
             data['pic_name'] + JOIN_SYMBOL + \
             data['context'] + "\n"
-        with open(FILE_PATH, "a") as text_file:
+        with open(FILE_PATH, "a", encoding = 'utf-8') as text_file:
             text_file.write(line)
 
     def get_interception(self):
@@ -84,13 +84,15 @@ class Handler(SimpleHTTPRequestHandler):
         return requests.post(host, data).json()
 
     def dowload_pic(self, pic_url, pic_name):
-        dir_path = picDirPath
+        dir_path = IMAGE_DIR_PATH
         if (not pic_url):
             raise ValueError("pic_url is empty")
+
         pic_path = path.join(dir_path, pic_name)
         if (path.isfile(pic_path)):
             # there no need to rewrite the file
             return
+
         r = requests.get(pic_url, stream=True)
         if r.status_code == 200:
             with open(pic_path, 'wb') as f:

@@ -18,7 +18,10 @@ SAVE_PICTURES = True
 def handle(package):
     #parsing package if it have data, else - exit from func
     if not package.haslayer(Raw): return
-    raw = str(package.getlayer(Raw).load.decode("utf-8"))
+    try:
+        raw = str(package.getlayer(Raw).load.decode("utf-8"))
+    except UnicodeDecodeError as e:
+        return
     
     if "word" not in raw or not "context" in raw: return
     s = raw.lstrip("b'").rstrip("'").split("&")  # delete b' on  and '
@@ -119,13 +122,10 @@ if __name__ == '__main__':
         open(FILE_PATH, 'a').close()  # create if doesn't exist
     if (not path.isdir(IMAGE_DIR_PATH)):
         sys.exit("%s is wrong path to save images" % IMAGE_DIR_PATH)
-    
-    host = socket.gethostbyname("api.lingualeo.com")
+
     print("Word data will be writen to %s" % FILE_PATH)
     print("Images will be saved to %s" % IMAGE_DIR_PATH)
-    print("Packages will be filtered by %s host" % host)
     try:
-        filter = "dst host " + host
-        sniff(iface="wlp3s0", filter=filter, prn=handle)
+        sniff(iface="wlp3s0", filter='tcp port 80', prn=handle)
     except KeyboardInterrupt:
         sys.exit(0)

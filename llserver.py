@@ -1,140 +1,222 @@
 #!/usr/bin/env python
-import sys
-import urllib
 import requests
 import simplejson as json
 from os import path
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-from pprintpp import pprint as pp
+import pprint; from pprintpp import pprint as pp
+from PyDictionary import PyDictionary; dictionary=PyDictionary()
 
+DEBUG = True
 FILE_PATH = path.join(path.dirname(path.realpath(__file__)), 'anki.csv')
-IMAGE_DIR_PATH = path.join(path.expanduser('~'), 'Documents', 'Anki', '1-й пользователь', 'media')
+MEDIA_DIR_PATH = '/home/bjorn/Documents/Anki/User 1/collection.media'
 JOIN_SYMBOL = '|'
-
-SUPPORT_HTML = True
-SAVE_PICTURES = True
 
 class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
-        data = {
-            "orig_word": None,
-            "word": None,
-            "type": None,
-            "translations": None,
-            "transcription": None,
-            "context": None,
-            "pic_name": None,
-            "sound_url": None #for future
-        }
+        from functools import reduce
 
-        interception = self.get_interception()
-        self.send_cap()
-        data['orig_word'] = interception['word'][0]
-        data['context'] = interception['context_title'][0]
-        if (SUPPORT_HTML):
-            data['context'] = data['context'].replace(
-                data['orig_word'], "<b>" + data['orig_word'] + "</b>")
+        intercept = self.get_interception()
+        original_form = Helper.get_lingualeo_data(intercept['orig_form']['word'])
 
-        orig_transl = self.get_word_info(interception['word'])
-        data['sound_url'] = orig_transl.get('sound_url', None)
+        # if word have different orig form - take data from orig_form
+        templ = intercept if (intercept['word'] == intercept['orig_form']['word']) else original_form
 
+        context = Helper.context_example(intercept['word'])
+        context.insert(0, intercept['context'])
+
+        synonyms = { key: Helper.translate(key) for key in dictionary.synonym(templ['word']) }
         try:
-            transl = self.get_word_info(orig_transl['word_forms'][0]['word'])
-            pic_url = transl.get('pic_url', None)
-            pic_name = pic_url.split('/')[-1] if pic_url else ''
-            if (SAVE_PICTURES and pic_name):
-                self.dowload_pic(pic_url, pic_name)
+            data = {
+                'word':              templ['word'],
+                'twords':            ', '.join(templ['twords']),
+                'transcr':           templ['transcr'],
+                'pic_name':          Helper.dowload(templ['pic_url']),
+                # 'sound_name':        Helper.dowload(templ['sound_url']),
+                'context':           Helper.distinguish(intercept['word'], "<br><br>".join(context) ),
+                'synonyms':          ', '.join( synonyms.keys() ),
+                'synonyms_&_transl': ', '.join([key+'('+value+')' for key, value in synonyms.items()]),
+            }
 
-            data['pic_name'] = pic_name
-            data['word'] = transl['word_forms'][0]['word']
-            data['type'] = transl['word_forms'][0]['type']
-            data['translations'] = ', '.join(
-                [t['value'] for t in transl['translate']])
-            data['transcription'] = transl['transcription']
-        except IndexError:
-            data['word'] = data['orig_word']
-            data['translations'] = ''
+            pp(data)
 
-        pp(data)
-        line = data['word'] + JOIN_SYMBOL + \
-            data['translations'] + JOIN_SYMBOL + \
-            data['transcription'] + JOIN_SYMBOL + \
-            data['pic_name'] + JOIN_SYMBOL + \
-            data['context'] + "\n"
-        with open(FILE_PATH, "a", encoding = 'utf-8') as text_file:
-            text_file.write(line)
+            line =  data['word'] + JOIN_SYMBOL + \
+                    data['twords'] + JOIN_SYMBOL + \
+                    data['transcr'] + JOIN_SYMBOL + \
+                    data['pic_name'] + JOIN_SYMBOL + \
+                    data['context'] + JOIN_SYMBOL + \
+                    data['synonyms'] + JOIN_SYMBOL + \
+                    data['synonyms_&_transl'] + "\n"
+            with open(FILE_PATH, "a", encoding = 'utf-8') as text_file:
+                text_file.write(line)
+
+        except Exception as e:
+            pp(intercept)
+            pp(original_form)
+            pp(context)
+            pp(synonyms)
+            raise e
+        print('#'*100)
 
     def get_interception(self):
-        rawbody = self.rfile.read(
-            int(self.headers['Content-Length'])).decode("utf-8")
-        return urllib.parse.parse_qs(rawbody)
+        import urllib
 
-    def send_cap(self):
-        # TODO
-        # prevent error message in extention (not work)
-        pass
-        # self.send_response(200)
+        body_lenght = int(self.headers['Content-Length'])
+        rawbody = self.rfile.read(body_lenght).decode("utf-8")
+        body = urllib.parse.parse_qs(rawbody)
+        try:
+            word = body['word'][0]
+            transl = Helper.get_lingualeo_data(word)
+            interception = {
+                'context':       " ".join(body['context']).replace('\n', ''),
+                'context_title': body.get('context_title', [''])[0],
+                'context_url':   body['context_url'][0],
+                'word':          word,
+                'transcr':       transl['transcr'],
+                'twords':        transl['twords'],
+                'orig_form':     transl.get('orig_form', ''),
+                'pic_url':       transl.get('pic_url', '') ,
+                'sound_url':     transl.get('sound_url', ''),
+            }
+        except Exception as e:
+            pp(body)
+            raise e
 
-    def get_word_info(self, word, host="https://api.lingualeo.com/gettranslates", include_media=1, add_word_forms=1):
+        Helper.insert_to_top(body['tword'][0], interception['twords'])
+        return interception
+
+class Helper:
+    @classmethod
+    def get_lingualeo_data(self, word, include_extra = True, host="https://api.lingualeo.com/gettranslates"):
         data = {
             'word': word,
-            'include_media': include_media,
-            'add_word_forms': add_word_forms
+            'include_media': 1 if include_extra else 0,
+            'add_word_forms': 1 if include_extra else 0
         }
-        return requests.post(host, data).json()
+        response = requests.post(host, data).json()
 
-    def dowload_pic(self, pic_url, pic_name):
-        dir_path = IMAGE_DIR_PATH
-        if (not pic_url):
-            raise ValueError("pic_url is empty")
+        word_info = {
+            'transcr': response['transcription'],
+            'twords': [ t['value'] for t in response['translate'] ],
+            'word': word
+        }
+        if include_extra:
+            try:
+                extra = {
+                    'orig_form': response['word_forms'][0],
+                    'pic_url': response['pic_url'],
+                    'sound_url': response['sound_url']
+                }
+                word_info.update(extra)
+            except IndexError:
+                print("EXEPTION: ", "{0} has no Extra".format(word))
+        return word_info
 
-        pic_path = path.join(dir_path, pic_name)
-        if (path.isfile(pic_path)):
-            # there no need to rewrite the file
-            return
+    @classmethod
+    def translate(self, word):
+        import re
 
-        r = requests.get(pic_url, stream=True)
-        if r.status_code == 200:
-            with open(pic_path, 'wb') as f:
-                for chunk in r.iter_content():
-                    f.write(chunk)
+        twords = self.get_lingualeo_data(word, False)['twords']
+        for t in twords:
+            if re.search('[а-яА-Я]', t): return t
+        return ''
+
+    @classmethod
+    def insert_to_top(self, element, array):
+        if element in array:
+            t_index = array.index(element)
+            array.pop(t_index)
+            array.insert(0, element)
+
+    @classmethod
+    def parse(self, words):
+        """Example
+        input = ['поддерживать',
+                 'обеспечивать',
+                 'поддерживать',
+                 'поддерживать (морально и материально), придавать силы, способствовать {uphold}; испытывать; нести; переносить; подтверждать, подкреплять (теорию) {confirm, corroborate}; быть опорой, подпирать {support, prop up}; исполнять, выдерживать (роль)',
+                 'подтверждать']
+        """
+        import re
+
+        temp = set()
+        for val in words:
+            val = re.sub(r'[\({](.*?)[}\)]', '', val) # delete everything in parentheses
+            val = re.split(',|;', val)
+            val = map(lambda x: x.strip(), val) # delete whitespace around the edges
+            [ temp.add(each) for each in filter(None, val) ]
+
+        return list(temp)
+
+    @classmethod
+    def dowload(self, url):
+        if not url:
+            return ''
+
+        file_name = url.split('/')[-1]
+        file_path = path.join(MEDIA_DIR_PATH, file_name)
+        if not path.isfile(file_path): # there no need to rewrite the file
+            r = requests.get(url, stream=True)
+            if r.status_code == 200:
+                with open(file_path, 'wb') as f:
+                    for chunk in r.iter_content():
+                        f.write(chunk)
+        return file_name
+
+    @classmethod
+    def unique(self, seq):
+        seen = set()
+        seen_add = seen.add
+        return [ x for x in seq if not (x in seen or seen_add(x))]
+
+    @classmethod
+    def distinguish(self, word, sentence):
+        return sentence.replace(word, "<b>" + word + "</b>")
+
+    @classmethod
+    def context_example(self, term): # TODO: variable amount of elements
+        from bs4 import BeautifulSoup
+
+        try:
+            url = "http://dictionary.reference.com/browse/{0}".format(term)
+            data = BeautifulSoup(requests.get(url).text, "html.parser")
+            terms = data.find_all(class_ = "partner-example-text")[-2:] # last 2 terms is "Historical Examples"
+            return [t.getText().replace("\n", "") for t in terms]
+        except Exception as e:
+            print("EXEPTION: ", "{0} has no Synonyms in the API".format(term))
+            if DEBUG : print(e)
+            return []
 
 if __name__ == '__main__':
+    import sys
     from argparse import ArgumentParser
+
     parser = ArgumentParser()
     parser.add_argument("-f", "--file", dest="file_path", default=FILE_PATH,
                       help="write word data to FILE", metavar="FILE")
-    parser.add_argument("-i", "--images", dest="image_dir_path", default=IMAGE_DIR_PATH,
+    parser.add_argument("-i", "--images", dest="image_dir_path", default=MEDIA_DIR_PATH,
                       help="save images to DIRECTORY", metavar="FILE")
     parser.add_argument("-j", "--join", dest="join_symbol", default=JOIN_SYMBOL,
                       help="a symbol which connects up words")
-    parser.add_argument("--nohtml", action="store_false", dest="support_html", default=SUPPORT_HTML,
-                      help="don`t mark words in context")
-    parser.add_argument("--nopic", action="store_false", dest="save_pictures", default=SAVE_PICTURES,
-                      help="don't save pictures in folder (Anki folder in default)")
     opts = parser.parse_args()
 
-    server_address = ('127.0.0.1', 3000)
+    server_address = ('127.0.0.1', 3100)
     FILE_PATH = path.abspath(opts.file_path)
-    IMAGE_DIR_PATH = path.abspath(opts.image_dir_path)
+    MEDIA_DIR_PATH = path.abspath(opts.image_dir_path)
     JOIN_SYMBOL = opts.join_symbol
-    SUPPORT_HTML = opts.support_html
-    SAVE_PICTURES = opts.save_pictures
 
     if (not path.isfile(FILE_PATH)):
         open(FILE_PATH, 'a').close()  # create if doesn't exist
-    if (not path.isdir(IMAGE_DIR_PATH)):
-        sys.exit("%s is wrong path to save images" % IMAGE_DIR_PATH)
+    if (not path.isdir(MEDIA_DIR_PATH)):
+        sys.exit("%s is wrong path to save images" % MEDIA_DIR_PATH)
 
-    print("Word data will be writen to %s" % FILE_PATH)
-    print("Images will be saved to %s" % IMAGE_DIR_PATH)
+    if DEBUG : print("DEBUG: ", "Word data will be writen to %s" % FILE_PATH, file=sys.stderr)
+    if DEBUG : print("DEBUG: ", "Images will be saved to %s" % MEDIA_DIR_PATH, file=sys.stderr)
 
     httpd = HTTPServer(server_address, Handler)
-    print('http server is running...listening on port %s' % server_address[1])
+    if DEBUG : print("DEBUG: ", 'http server is running...listening on port %s' % server_address[1], file=sys.stderr)
 
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        sys.exit(0)
-    finally:
         httpd.server_close()
+        sys.exit(0)

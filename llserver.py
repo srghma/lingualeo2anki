@@ -19,10 +19,16 @@ class Handler(SimpleHTTPRequestHandler):
         original_form = Helper.get_lingualeo_data(intercept['orig_form']['word'])
 
         # if word have different orig form - take data from orig_form
-        templ = intercept if (intercept['word'] == intercept['orig_form']['word']) else original_form
+        if (intercept['word'] == intercept['orig_form']['word']):
+            templ = intercept
+        else: templ = original_form
 
-        context = Helper.context_example(intercept['word'])
-        context.insert(0, intercept['context'])
+        if intercept['context']:
+            context = Helper.context_example(templ['word'], 2)
+            context.insert(0, intercept['context'])
+        else:
+            context = Helper.context_example(templ['word'], 3)
+        context = "<br><br>".join(context)
 
         synonyms = { key: Helper.translate(key) for key in dictionary.synonym(templ['word']) }
         try:
@@ -32,7 +38,7 @@ class Handler(SimpleHTTPRequestHandler):
                 'transcr':           templ['transcr'],
                 'pic_name':          Helper.dowload(templ['pic_url']),
                 # 'sound_name':        Helper.dowload(templ['sound_url']),
-                'context':           Helper.distinguish(intercept['word'], "<br><br>".join(context) ),
+                'context':           Helper.distinguish(templ['word'], context ),
                 'synonyms':          ', '.join( synonyms.keys() ),
                 'synonyms_&_transl': ', '.join([key+'('+value+')' for key, value in synonyms.items()]),
             }
@@ -67,16 +73,17 @@ class Handler(SimpleHTTPRequestHandler):
             word = body['word'][0]
             transl = Helper.get_lingualeo_data(word)
             interception = {
-                'context':       " ".join(body['context']).replace('\n', ''),
-                'context_title': body.get('context_title', [''])[0],
-                'context_url':   body['context_url'][0],
                 'word':          word,
                 'transcr':       transl['transcr'],
                 'twords':        transl['twords'],
-                'orig_form':     transl.get('orig_form', ''),
-                'pic_url':       transl.get('pic_url', '') ,
-                'sound_url':     transl.get('sound_url', ''),
             }
+
+            interception['context'] = " ".join(body['context']).replace('\n', '') if body['context'] else ''
+            interception['context_title'] = body.get('context_title', [''])[0]
+            interception['context_url'] = body.get('context_url', [''])[0]
+            interception['orig_form'] = transl.get('orig_form', '')
+            interception['pic_url'] = transl.get('pic_url', '')
+            interception['sound_url'] = transl.get('sound_url', '')
         except Exception as e:
             pp(body)
             raise e
@@ -173,13 +180,13 @@ class Helper:
         return sentence.replace(word, "<b>" + word + "</b>")
 
     @classmethod
-    def context_example(self, term): # TODO: variable amount of elements
+    def context_example(self, term, amount):
         from bs4 import BeautifulSoup
 
         try:
             url = "http://dictionary.reference.com/browse/{0}".format(term)
             data = BeautifulSoup(requests.get(url).text, "html.parser")
-            terms = data.find_all(class_ = "partner-example-text")[-2:] # last 2 terms is "Historical Examples"
+            terms = data.find_all(class_ = "partner-example-text")[-amount:] # last 2 terms is "Historical Examples"
             return [t.getText().replace("\n", "") for t in terms]
         except Exception as e:
             print("EXEPTION: ", "{0} has no Synonyms in the API".format(term))
@@ -204,10 +211,8 @@ if __name__ == '__main__':
     MEDIA_DIR_PATH = path.abspath(opts.image_dir_path)
     JOIN_SYMBOL = opts.join_symbol
 
-    if (not path.isfile(FILE_PATH)):
-        open(FILE_PATH, 'a').close()  # create if doesn't exist
-    if (not path.isdir(MEDIA_DIR_PATH)):
-        sys.exit("%s is wrong path to save images" % MEDIA_DIR_PATH)
+    if not path.isfile(FILE_PATH) : open(FILE_PATH, 'a').close()  # create if doesn't exist
+    if not path.isdir(MEDIA_DIR_PATH) : sys.exit("%s is wrong path to save images" % MEDIA_DIR_PATH)
 
     if DEBUG : print("DEBUG: ", "Word data will be writen to %s" % FILE_PATH, file=sys.stderr)
     if DEBUG : print("DEBUG: ", "Images will be saved to %s" % MEDIA_DIR_PATH, file=sys.stderr)

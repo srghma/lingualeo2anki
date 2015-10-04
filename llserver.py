@@ -25,7 +25,9 @@ class Handler(SimpleHTTPRequestHandler):
 
         if intercept['context']:
             context = Helper.context_example(templ['word'], 2)
-            context.insert(0, intercept['context'])
+            user_selected_transl = intercept['twords'][0]
+            intercept_context = intercept['context'].replace(intercept['word'], intercept['word'] + "(" + user_selected_transl + ")")
+            context.insert(0, intercept_context)
         else:
             context = Helper.context_example(templ['word'], 3)
         context = "<br><br>".join(context)
@@ -54,7 +56,6 @@ class Handler(SimpleHTTPRequestHandler):
                     data['synonyms_&_transl'] + "\n"
             with open(FILE_PATH, "a", encoding = 'utf-8') as text_file:
                 text_file.write(line)
-
         except Exception as e:
             pp(intercept)
             pp(original_form)
@@ -73,22 +74,22 @@ class Handler(SimpleHTTPRequestHandler):
             word = body['word'][0]
             transl = Helper.get_lingualeo_data(word)
             interception = {
-                'word':          word,
-                'transcr':       transl['transcr'],
-                'twords':        transl['twords'],
+                'word':    word,
+                'transcr': transl['transcr'],
+                'twords':  transl['twords'],
             }
 
-            interception['context'] = " ".join(body['context']).replace('\n', '') if body['context'] else ''
+            interception['context']       = " ".join(body['context']).replace('\n', '') if body['context'] else ''
             interception['context_title'] = body.get('context_title', [''])[0]
-            interception['context_url'] = body.get('context_url', [''])[0]
-            interception['orig_form'] = transl.get('orig_form', '')
-            interception['pic_url'] = transl.get('pic_url', '')
-            interception['sound_url'] = transl.get('sound_url', '')
+            interception['context_url']   = body.get('context_url', [''])[0]
+            interception['orig_form']     = transl.get('orig_form', '')
+            interception['pic_url']       = transl.get('pic_url', '')
+            interception['sound_url']     = transl.get('sound_url', '')
         except Exception as e:
             pp(body)
             raise e
 
-        Helper.insert_to_top(body['tword'][0], interception['twords'])
+        Helper.locate_to_top(body['tword'][0], interception['twords'])
         return interception
 
 class Helper:
@@ -103,19 +104,13 @@ class Helper:
 
         word_info = {
             'transcr': response['transcription'],
-            'twords': [ t['value'] for t in response['translate'] ],
+            'twords': [ t['value'].replace('\n', ' ') for t in response['translate'] ],
             'word': word
         }
         if include_extra:
-            try:
-                extra = {
-                    'orig_form': response['word_forms'][0],
-                    'pic_url': response['pic_url'],
-                    'sound_url': response['sound_url']
-                }
-                word_info.update(extra)
-            except IndexError:
-                print("EXEPTION: ", "{0} has no Extra".format(word))
+            word_info['orig_form'] = response.get('word_forms', [''])[0]
+            word_info['pic_url']   = response.get('pic_url', '')
+            word_info['sound_url'] = response.get('sound_url', '')
         return word_info
 
     @classmethod
@@ -128,7 +123,7 @@ class Helper:
         return ''
 
     @classmethod
-    def insert_to_top(self, element, array):
+    def locate_to_top(self, element, array):
         if element in array:
             t_index = array.index(element)
             array.pop(t_index)
@@ -146,18 +141,17 @@ class Helper:
         import re
 
         temp = set()
-        for val in words:
-            val = re.sub(r'[\({](.*?)[}\)]', '', val) # delete everything in parentheses
-            val = re.split(',|;', val)
-            val = map(lambda x: x.strip(), val) # delete whitespace around the edges
-            [ temp.add(each) for each in filter(None, val) ]
+        for word in words:
+            word = re.sub(r'[\({](.*?)[}\)]', '', word) # delete everything in parentheses
+            word = re.split(',|;', word)
+            word = map(lambda x: x.strip(), word) # delete whitespace around the edges
+            [ temp.add(each) for each in filter(None, word) ]
 
         return list(temp)
 
     @classmethod
     def dowload(self, url):
-        if not url:
-            return ''
+        if not url: return ''
 
         file_name = url.split('/')[-1]
         file_path = path.join(MEDIA_DIR_PATH, file_name)

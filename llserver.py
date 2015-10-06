@@ -13,15 +13,13 @@ JOIN_SYMBOL = '|'
 
 class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
-        from functools import reduce
-
         intercept = self.get_interception()
-        original_form = Helper.get_lingualeo_data(intercept['orig_form']['word'])
 
         # if word have different orig form - take data from orig_form
-        if (intercept['word'] == intercept['orig_form']['word']):
+        if not intercept['orig_form'] or intercept['word'] == intercept['orig_form']['word']:
             templ = intercept
-        else: templ = original_form
+        else:
+            templ = Helper.get_lingualeo_data(intercept['orig_form']['word'])
 
         if intercept['context']:
             context = Helper.context_example(templ['word'], 2)
@@ -32,7 +30,6 @@ class Handler(SimpleHTTPRequestHandler):
             context = Helper.context_example(templ['word'], 3)
         context = "<br><br>".join(context)
 
-        synonyms = { key: Helper.translate(key) for key in dictionary.synonym(templ['word']) }
         try:
             data = {
                 'word':              templ['word'],
@@ -41,9 +38,14 @@ class Handler(SimpleHTTPRequestHandler):
                 'pic_name':          Helper.dowload(templ['pic_url']),
                 # 'sound_name':        Helper.dowload(templ['sound_url']),
                 'context':           Helper.distinguish(templ['word'], context ),
-                'synonyms':          ', '.join( synonyms.keys() ),
-                'synonyms_&_transl': ', '.join([key+'('+value+')' for key, value in synonyms.items()]),
+                'synonyms':          '',
+                'synonyms_&_transl': '',
             }
+
+            if len( templ['word'].split() ) < 1:
+                synonyms = { key: Helper.translate(key) for key in dictionary.synonym(templ['word']) }
+                data['synonyms'] = ', '.join( synonyms.keys() )
+                data['synonyms_&_transl'] = ', '.join([key+'('+value+')' for key, value in synonyms.items()])
 
             pp(data)
 
@@ -58,9 +60,6 @@ class Handler(SimpleHTTPRequestHandler):
                 text_file.write(line)
         except Exception as e:
             pp(intercept)
-            pp(original_form)
-            pp(context)
-            pp(synonyms)
             raise e
         print('#'*100)
 
@@ -108,9 +107,13 @@ class Helper:
             'word': word
         }
         if include_extra:
-            word_info['orig_form'] = response.get('word_forms', [''])[0]
-            word_info['pic_url']   = response.get('pic_url', '')
-            word_info['sound_url'] = response.get('sound_url', '')
+            try:
+                if response['word_forms']: word_info['orig_form'] = response['word_forms'][0]
+                word_info['pic_url']   = response.get('pic_url', '')
+                word_info['sound_url'] = response.get('sound_url', '')
+            except Exception as e:
+                pp(response)
+                raise e
         return word_info
 
     @classmethod

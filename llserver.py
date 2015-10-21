@@ -11,95 +11,6 @@ FILE_PATH = path.join(path.dirname(path.realpath(__file__)), 'anki.csv')
 MEDIA_DIR_PATH = path.join( path.expanduser("~"), 'Documents', 'Anki', 'User 1', 'collection.media')
 JOIN_SYMBOL = '|'
 
-<<<<<<< HEAD
-SUPPORT_HTML = True
-SAVE_PICTURES = True
-
-def handle(package):
-    #parsing package if it have data, else - exit from func
-    if not package.haslayer(Raw): return
-    try:
-        raw = str(package.getlayer(Raw).load.decode("utf-8"))
-    except UnicodeDecodeError as e:
-        return
-    
-    if "word" not in raw or not "context" in raw: return
-    s = raw.lstrip("b'").rstrip("'").split("&")  # delete b' on  and '
-    try:
-        request_word = s[0].split("=")[-1].strip()
-        context = s[2].split("=")[-1].strip()
-    except Exception as e:
-        print(e)
-        print('s =', s)
-        return
-
-    data = {
-        "request_word": request_word,
-        "context": context,
-        "word": '',
-        "type": '',
-        "translations": '',
-        "transcription": '',
-        "pic_name": '',
-        "sound_url": ''  # for future
-    }
-
-    #HTML support
-    data['context'] = data['context'].replace(
-        data['request_word'], "<b>" + data['request_word'] + "</b>")
-
-    orig_transl = get_word_info(request_word)
-    data['sound_url'] = orig_transl.get('sound_url', None)
-
-    try:
-        transl = get_word_info(orig_transl['word_forms'][0]['word'])
-        pic_url = transl.get('pic_url', None)
-        pic_name = pic_url.split('/')[-1] if pic_url else ''
-        if (SAVE_PICTURES and pic_name):
-            dowload_pic(pic_url, pic_name)
-
-        data['pic_name'] = pic_name
-        data['word'] = transl['word_forms'][0]['word']
-        data['type'] = transl['word_forms'][0]['type']
-        data['translations'] = ', '.join(
-            [t['value'] for t in transl['translate']])
-        data['transcription'] = transl['transcription']
-    except IndexError:
-        data['word'] = data['request_word']
-
-    pp(data)
-    line = data['word'] + JOIN_SYMBOL + \
-        data['translations'] + JOIN_SYMBOL + \
-        data['transcription'] + JOIN_SYMBOL + \
-        data['pic_name'] + JOIN_SYMBOL + \
-        data['context'] + "\n"
-    with open(FILE_PATH, "a") as text_file:
-        text_file.write(line)
-
-def get_word_info(word, host="https://api.lingualeo.com/gettranslates", include_media=1, add_word_forms=1):
-    data = {
-        'word': word,
-        'include_media': include_media,
-        'add_word_forms': add_word_forms
-    }
-    return requests.post(host, data).json()
-
-def dowload_pic(pic_url, pic_name):
-    dir_path = IMAGE_DIR_PATH
-    if (not pic_url):
-        raise ValueError("pic_url is empty")
-
-    pic_path = path.join(dir_path, pic_name)
-    if (path.isfile(pic_path)):
-        # there no need to rewrite the file
-        return
-
-    r = requests.get(pic_url, stream=True)
-    if r.status_code == 200:
-        with open(pic_path, 'wb') as f:
-            for chunk in r.iter_content():
-                f.write(chunk)
-=======
 class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         intercept = self.get_interception()
@@ -286,7 +197,6 @@ class Helper:
             print("EXEPTION: ", "{0} has no Synonyms in the API".format(term))
             if DEBUG : print(e)
             return []
->>>>>>> server
 
 if __name__ == '__main__':
     import sys
@@ -299,21 +209,12 @@ if __name__ == '__main__':
                       help="save images to DIRECTORY", metavar="FILE")
     parser.add_argument("-j", "--join", dest="join_symbol", default=JOIN_SYMBOL,
                       help="a symbol which connects up words")
-<<<<<<< HEAD
-    parser.add_argument("--nopic", action="store_false", dest="save_pictures", default=SAVE_PICTURES,
-                      help="don't save pictures in folder (Anki folder in default)")
-=======
->>>>>>> server
     opts = parser.parse_args()
 
     server_address = ('127.0.0.1', 3100)
     FILE_PATH = path.abspath(opts.file_path)
     MEDIA_DIR_PATH = path.abspath(opts.image_dir_path)
     JOIN_SYMBOL = opts.join_symbol
-<<<<<<< HEAD
-    SAVE_PICTURES = opts.save_pictures
-=======
->>>>>>> server
 
     if not path.isfile(FILE_PATH) : open(FILE_PATH, 'a').close()  # create if doesn't exist
     if not path.isdir(MEDIA_DIR_PATH) : sys.exit("%s is wrong path to save images" % MEDIA_DIR_PATH)
@@ -324,15 +225,8 @@ if __name__ == '__main__':
     httpd = HTTPServer(server_address, Handler)
     if DEBUG : print("DEBUG: ", 'http server is running...listening on port %s' % server_address[1], file=sys.stderr)
 
-<<<<<<< HEAD
-    print("Word data will be writen to %s" % FILE_PATH)
-    print("Images will be saved to %s" % IMAGE_DIR_PATH)
-    try:
-        sniff(iface="wlp3s0", filter='tcp port 80', prn=handle)
-=======
     try:
         httpd.serve_forever()
->>>>>>> server
     except KeyboardInterrupt:
         httpd.server_close()
         sys.exit(0)

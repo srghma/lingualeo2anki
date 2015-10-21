@@ -8,7 +8,7 @@ from PyDictionary import PyDictionary; dictionary=PyDictionary()
 
 DEBUG = True
 FILE_PATH = path.join(path.dirname(path.realpath(__file__)), 'anki.csv')
-MEDIA_DIR_PATH = '/home/bjorn/Documents/Anki/User 1/collection.media'
+MEDIA_DIR_PATH = path.join( path.expanduser("~"), 'Documents', 'Anki', 'User 1', 'collection.media')
 JOIN_SYMBOL = '|'
 
 class Handler(SimpleHTTPRequestHandler):
@@ -23,13 +23,18 @@ class Handler(SimpleHTTPRequestHandler):
 
         if intercept['context']:
             context = Helper.context_example(templ['word'], 2)
+            context = Helper.distinguish(templ['word'], context )
+
             user_selected_transl = intercept['twords'][0]
             intercept_context = intercept['context'].replace(intercept['word'], intercept['word'] + "(" + user_selected_transl + ")")
+            intercept_context = Helper.distinguish(intercept['word'], intercept_context )
+
             context.insert(0, intercept_context)
         else:
             context = Helper.context_example(templ['word'], 3)
-        context = "<br><br>".join(context)
+            context = Helper.distinguish(templ['word'], context )
 
+        templ['twords'] = Helper.unique(templ['twords'])
         try:
             data = {
                 'word':              templ['word'],
@@ -37,12 +42,12 @@ class Handler(SimpleHTTPRequestHandler):
                 'transcr':           templ['transcr'],
                 'pic_name':          Helper.dowload(templ['pic_url']),
                 # 'sound_name':        Helper.dowload(templ['sound_url']),
-                'context':           Helper.distinguish(templ['word'], context ),
+                'context':           "<br><br>".join(context),
                 'synonyms':          '',
                 'synonyms_&_transl': '',
             }
 
-            if len( templ['word'].split() ) < 1:
+            if len( templ['word'].split(' ') ) <= 1:
                 synonyms = { key: Helper.translate(key) for key in dictionary.synonym(templ['word']) }
                 data['synonyms'] = ', '.join( synonyms.keys() )
                 data['synonyms_&_transl'] = ', '.join([key+'('+value+')' for key, value in synonyms.items()])
@@ -78,7 +83,7 @@ class Handler(SimpleHTTPRequestHandler):
                 'twords':  transl['twords'],
             }
 
-            interception['context']       = " ".join(body['context']).replace('\n', '') if body['context'] else ''
+            interception['context']       = " ".join(body['context']).replace('\n', '') if 'context' in body else ''
             interception['context_title'] = body.get('context_title', [''])[0]
             interception['context_url']   = body.get('context_url', [''])[0]
             interception['orig_form']     = transl.get('orig_form', '')
@@ -174,7 +179,10 @@ class Helper:
 
     @classmethod
     def distinguish(self, word, sentence):
-        return sentence.replace(word, "<b>" + word + "</b>")
+        try:
+            return sentence.replace(word, "<b>" + word + "</b>")
+        except AttributeError:
+            return [x.replace(word, "<b>" + word + "</b>") for x in sentence]
 
     @classmethod
     def context_example(self, term, amount):

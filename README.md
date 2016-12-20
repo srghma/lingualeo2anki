@@ -1,9 +1,5 @@
 # lingualeo-extension-interceptor
-Приложение для тех, кому нравится, как Lingualeo подсказывает перевод и желает учить английский в Anki (и, конечно же не платить за словарь Lingualeo). Сохраняет слова в виде таблицы в файл, который можно импортировать в колоды Anki.
 
-В расширении Lingualeo явно изменяется url добавления слова в словарь на адрес локального сервера. Данная функциональность была выбрана, т.к. api google chrome запрещает создание локальных файлов. В будущем я попытаюсь найти решение получше.
-
-###Как использовать (перед использованием прочтите раздел "Установка")
 1. Запустите приложение, используя python
 ![2](https://cloud.githubusercontent.com/assets/7573215/8169784/8bf77b7a-13b4-11e5-9197-bbabf3e0143a.jpg)
 
@@ -23,7 +19,7 @@
 ###Установка
 1. Установить python и модули, используемые в приложении (requests, simplejson, pprintpp). Рекомендуется использовать pip для установки модулей.
 2. Скачайте уже измененное [расширение](https://mega.co.nz/#F!8sFHjQZa!Tj0cZnarJo2N24SRFNWVMg) или измените его сами. 
-    > Сделайте копию C:\Users\<имя польхователя>\AppData\Local\Google\Chrome\User Data\Default\Extensions\nglbhlefjhcjockellmeclkcijildjhi\\<версия>\. В файле lingualeo\js\server.js измените g+lingualeo.config.ajax.addWordToDict на "http://localhost:3000". Удалите папку _metadata.
+    > Сделайте копию C:\Users\\<имя пользователя>\AppData\Local\Google\Chrome\User Data\Default\Extensions\nglbhlefjhcjockellmeclkcijildjhi\\<версия>\. В файле lingualeo\js\server.js измените g+lingualeo.config.ajax.addWordToDict на "http://localhost:3000". Удалите папку _metadata.
 
 3. Включите режим разработчика, добавьте расширение
 ![210601](https://cloud.githubusercontent.com/assets/7573215/8169794/959ce23c-13b4-11e5-8234-6f0c0429e440.png)

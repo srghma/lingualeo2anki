@@ -75,6 +75,7 @@ class Handler(SimpleHTTPRequestHandler):
         body_lenght = int(self.headers['Content-Length'])
         rawbody = self.rfile.read(body_lenght).decode("utf-8")
         body = urllib.parse.parse_qs(rawbody)
+        pp(body)
         try:
             word = body['word'][0]
             transl = Helper.get_lingualeo_data(word)
@@ -109,6 +110,7 @@ class Helper:
             'add_word_forms': 1 if include_extra else 0
         }
         response = requests.post(host, data).json()
+        pp(response)
 
         word_info = {
             'transcr': response['transcription'],

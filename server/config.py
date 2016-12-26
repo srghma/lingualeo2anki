@@ -19,6 +19,13 @@ class ConfigHolder(object):
     def __init__(self, init=defaults):
         self.__dict__.update(init)
 
+    def update(self, other):
+        self.write_to_path   = other.write_to_path
+        self.images_dir_path = other.images_dir_path
+        self.join_symbol     = other.join_symbol
+        self.port            = other.port
+        self.debug           = other.debug
+
     @property
     def server_address(self):
         return (self.address, self.port)

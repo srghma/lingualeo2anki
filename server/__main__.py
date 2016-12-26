@@ -29,13 +29,8 @@ if __name__ == '__main__':
 
     opts = parser.parse_args()
 
-    config.write_to_path   = opts.write_to_path
-    config.images_dir_path = opts.images_dir_path
-    config.join_symbol     = opts.join_symbol
-    config.port            = opts.port
-    config.debug           = opts.debug
+    config.update(opts)
 
-    print(config.__dict__)
     # create file if doesn't exist
     if not path.isfile(config.write_to_path):
         open(config.write_to_path, 'a').close()

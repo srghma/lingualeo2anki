@@ -1,4 +1,12 @@
-Testdata = namedtuple('Testdata', ['x', 'y'])
+from collections import namedtuple
+
+Testdata = namedtuple('Testdata', [
+    'intercepted_request',
+    'first_lingualeo_responce',
+    'second_lingualeo_responce',
+    'output'
+])
+Testdata.__new__.__defaults__ = (None,) * len(Testdata._fields)
 
 testdata_without_parent = Testdata(
     intercepted_request={

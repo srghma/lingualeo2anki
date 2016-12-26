@@ -1,3 +1,3 @@
 #!/bin/bash
 
-PYTHONPATH="$(pwd)" python -m server "$@"
+python -m server "$@"

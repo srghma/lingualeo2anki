@@ -32,6 +32,7 @@ def main():
 
     config.update(opts)
 
+    print(config.__dict__)
     # create file if doesn't exist
     if not path.isfile(config.write_to_path):
         open(config.write_to_path, 'a').close()
@@ -46,9 +47,9 @@ def main():
         httpd = HTTPServer(config.server_address, Handler)
         debug('http server is running...listening on port %s', config.port)
         httpd.serve_forever()
-    # except KeyboardInterrupt:
-    #     httpd.server_close()
-    #     sys.exit(0)
+    except KeyboardInterrupt:
+        httpd.server_close()
+        sys.exit(0)
     finally:
         debug("finnaly")
         httpd.server_close()

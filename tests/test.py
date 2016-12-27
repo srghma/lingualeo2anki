@@ -8,7 +8,6 @@ from .testdata import testdata_without_parent, testdata_with_parent
 test_dir_path     = path.dirname(__file__)
 root_dir_path     = path.dirname(test_dir_path)
 debug_path        = path.join(test_dir_path, "debug.log")
-start_server_path = path.join(root_dir_path, 'start_server.sh')
 
 # recreate debug.log
 open(debug_path, 'w').close()
@@ -24,12 +23,12 @@ class TestHandler(TestCase):
 
     def setUp(self):
         cmd = [
-            start_server_path,
+            'python', '-m', 'server',
             '-f', path.join(test_dir_path, 'anki.csv'),
             '--debug'
         ]
         self.debug_file = open(debug_path, 'a')
-        self.server = Popen(cmd, shell=True, universal_newlines=True,
+        self.server = Popen(cmd, universal_newlines=True, cwd=root_dir_path,
                             stdout=self.debug_file, stderr=STDOUT)
 
     def tearDown(self):
@@ -37,7 +36,9 @@ class TestHandler(TestCase):
             self.server.communicate(timeout=2)
         except TimeoutExpired:
             self.server.kill()
-            system("lsof -i :3100 | awk '{ print $2 }' | tail -n +2 | xargs kill")
+            # self.server.communicate()
+            # kill_listener = "lsof -i :3100 | awk '{ print $2 }' | tail -n +2 | xargs kill"
+            # system(kill_listener)
         finally:
             self.debug_file.close()
 

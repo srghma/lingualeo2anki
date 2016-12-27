@@ -90,5 +90,5 @@ ENV/
 # Rope project settings
 .ropeproject
 
-test/*.log
-test/*.csv
+tests/*.log
+tests/*.csv

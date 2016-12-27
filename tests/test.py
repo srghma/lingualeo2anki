@@ -24,7 +24,7 @@ class TestHandler(TestCase):
 
     def setUp(self):
         cmd = [
-            start_server_path,
+            'python -m server',
             '-f', path.join(test_dir_path, 'anki.csv'),
             '--debug'
         ]

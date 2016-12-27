@@ -7,7 +7,8 @@ from .handler import Handler
 from .config import config
 from .utils import debug
 
-if __name__ == '__main__':
+
+def main():
     parser = ArgumentParser()
 
     parser.add_argument("-f", "--file", dest="write_to_path",
@@ -41,11 +42,18 @@ if __name__ == '__main__':
     debug("Word data will be writen to %s", config.write_to_path)
     debug("Images will be saved to %s", config.images_dir_path)
 
-    httpd = HTTPServer(config.server_address, Handler)
-    debug('http server is running...listening on port %s', config.port)
-
     try:
+        httpd = HTTPServer(config.server_address, Handler)
+        debug('http server is running...listening on port %s', config.port)
         httpd.serve_forever()
     except KeyboardInterrupt:
         httpd.server_close()
         sys.exit(0)
+    finally:
+        httpd.socket.close()
+        httpd.server_close()
+        debug("finnaly")
+
+
+if __name__ == '__main__':
+    main()

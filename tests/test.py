@@ -1,15 +1,17 @@
-from os import path, getcwd, kill
-import inspect
-import sys
+from os import path, system
 from unittest import TestCase
-from subprocess import Popen, PIPE, TimeoutExpired
-from server.config import config
+from subprocess import Popen, PIPE, STDOUT, TimeoutExpired, call
 
+from server.config import config
 from .testdata import testdata_without_parent, testdata_with_parent
 
 test_dir_path     = path.dirname(__file__)
 root_dir_path     = path.dirname(test_dir_path)
-start_server_path = path.join(root_dir_path, "start_server.sh")
+debug_path        = path.join(test_dir_path, "debug.log")
+start_server_path = path.join(root_dir_path, 'start_server.sh')
+
+# recreate debug.log
+open(debug_path, 'w').close()
 
 
 class TestAll(TestCase):
@@ -26,19 +28,18 @@ class TestHandler(TestCase):
             '-f', path.join(test_dir_path, 'anki.csv'),
             '--debug'
         ]
-        self.server = Popen(cmd, shell=False, universal_newlines=True,
-                            stdout=PIPE, stderr=PIPE)
+        self.debug_file = open(debug_path, 'a')
+        self.server = Popen(cmd, shell=True, universal_newlines=True,
+                            stdout=self.debug_file, stderr=STDOUT)
 
     def tearDown(self):
-        # self.debug_file.close()
         try:
-            stdout, stderr = self.server.communicate(timeout=2)
+            self.server.communicate(timeout=2)
         except TimeoutExpired:
-            print("here")
             self.server.kill()
-            stdout, stderr = self.server.communicate()
+            system("lsof -i :3100 | awk '{ print $2 }' | tail -n +2 | xargs kill")
         finally:
-            print(stdout, stderr)
+            self.debug_file.close()
 
     def testWordWithoutParent(self):
         print("")

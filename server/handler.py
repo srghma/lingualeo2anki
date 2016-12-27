@@ -16,4 +16,3 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         print(get_requested_word())
-

@@ -7,6 +7,7 @@ from .testdata import testdata_without_parent, testdata_with_parent
 
 test_dir_path = path.dirname(__file__)
 root_dir_path = path.dirname(test_dir_path)
+write_to_path = path.join(test_dir_path, 'anki.csv')
 
 
 class TestAll(TestCase):
@@ -20,11 +21,18 @@ class TestHandler(TestCase):
     def setUp(self):
         cmd = [
             'python', '-m', 'server',
-            '-f', path.join(test_dir_path, 'anki.csv'),
+            '-f', write_to_path,
             '--debug'
         ]
         self.server = Popen(cmd, universal_newlines=True, cwd=root_dir_path,
                             stdout=PIPE, stderr=PIPE)
+
+        # also tried this, did not help
+        # cmd = [
+        #     'python -m server --debug -f ' + write_to_path
+        # ]
+        # self.server = Popen(cmd, shell=True, universal_newlines=True, cwd=root_dir_path,
+        #                     stdout=PIPE, stderr=PIPE)
 
     def tearDown(self):
         try:
@@ -34,9 +42,7 @@ class TestHandler(TestCase):
             print("kill")
             self.server.kill()
             outs, errs = self.server.communicate()
-            print(outs, errs)
-            # system("lsof -i :3100 | awk '{ print $2 }' | tail -n +2 | xargs kill")
+            print(outs, errs) # empty output here
 
     def testWordWithoutParent(self):
-        print("")
-        # pass
+        pass

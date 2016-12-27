@@ -32,7 +32,6 @@ def main():
 
     config.update(opts)
 
-    print(config.__dict__)
     # create file if doesn't exist
     if not path.isfile(config.write_to_path):
         open(config.write_to_path, 'a').close()

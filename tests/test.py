@@ -1,17 +1,15 @@
 from os import path, getcwd, kill
 import inspect
+import sys
 from unittest import TestCase
-from subprocess import Popen, PIPE
-
+from subprocess import Popen, PIPE, TimeoutExpired
 from server.config import config
+
 from .testdata import testdata_without_parent, testdata_with_parent
 
 test_dir_path     = path.dirname(__file__)
-debug_path        = path.join(test_dir_path, "debug.log")
-start_server_path = path.join(path.dirname(test_dir_path), 'start_server.sh')
-
-# recriate debug.log
-open(debug_path, 'w').close()
+root_dir_path     = path.dirname(test_dir_path)
+start_server_path = path.join(root_dir_path, "start_server.sh")
 
 
 class TestAll(TestCase):
@@ -24,27 +22,24 @@ class TestHandler(TestCase):
 
     def setUp(self):
         cmd = [
-            'python -m server',
+            start_server_path,
             '-f', path.join(test_dir_path, 'anki.csv'),
             '--debug'
         ]
-        self.debug_file = open(debug_path, 'a')
         self.server = Popen(cmd, shell=False, universal_newlines=True,
-                            stdout=self.debug_file, stderr=PIPE)
+                            stdout=PIPE, stderr=PIPE)
 
     def tearDown(self):
-        (_, stderr) = self.server.communicate()
-        print(stderr)
-        print(self.server.pid)
-        self.server.terminate()
-        self.debug_file.close()
+        # self.debug_file.close()
         try:
-            kill(self.server.pid, 0)
+            stdout, stderr = self.server.communicate(timeout=2)
+        except TimeoutExpired:
+            print("here")
             self.server.kill()
-            print("Forced kill")
-        except OSError:
-            print("Terminated gracefully")
+            stdout, stderr = self.server.communicate()
+        finally:
+            print(stdout, stderr)
 
     def testWordWithoutParent(self):
-        print("test")
+        print("")
         # pass

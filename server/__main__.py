@@ -46,13 +46,13 @@ def main():
         httpd = HTTPServer(config.server_address, Handler)
         debug('http server is running...listening on port %s', config.port)
         httpd.serve_forever()
-    except KeyboardInterrupt:
+    # except KeyboardInterrupt:
+    #     httpd.server_close()
+    #     sys.exit(0)
+    finally:
+        debug("finnaly")
         httpd.server_close()
         sys.exit(0)
-    finally:
-        httpd.socket.close()
-        httpd.server_close()
-        debug("finnaly")
 
 
 if __name__ == '__main__':

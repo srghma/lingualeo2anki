@@ -46,7 +46,7 @@ def main():
     server = None
 
     def close_server(signum, frame):
-        debug("Signal handler called with signal %s", signum)
+        debug("Server was closed by system signal %s", signum)
         if server:
             server.server_close()
             sys.exit()
@@ -54,7 +54,7 @@ def main():
     server = HTTPServer(config.server_address, Handler)
     signal.signal(signal.SIGINT,  close_server)
     signal.signal(signal.SIGTERM, close_server)
-    debug('http server is running...listening on port %s', config.port)
+    debug('Listening port %s', config.port)
     server.serve_forever()
 
 

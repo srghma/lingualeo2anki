@@ -1,8 +1,8 @@
 
 
-class Lingualeo:
+class Translation:
 
-    """ Wrapper for lingouleo related responses """
+    """ Wrapper for lingualeo translation responses """
 
     def __init__(self, arg):
         self.arg = arg

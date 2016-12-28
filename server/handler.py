@@ -1,18 +1,37 @@
 from http.server import SimpleHTTPRequestHandler
 import urllib
 
-from .lingualeo import Lingualeo
+from .utils import debug
+from .lingualeo import Translation
 
 
 class Handler(SimpleHTTPRequestHandler):
 
-    allow_reuse_address = True
+    def get_interception(self):
+        try:
+            body_lenght = int(self.headers['Content-Length'])
+            rawbody = self.rfile.read(body_lenght).decode("utf-8")
+            body = urllib.parse.parse_qs(rawbody)
 
-    def get_requested_word(self):
-        body_lenght = int(self.headers['Content-Length'])
-        rawbody = self.rfile.read(body_lenght).decode("utf-8")
-        body = urllib.parse.parse_qs(rawbody)
-        return body['word'][0]
+            def get_from_body(key, required=False):
+                if required:
+                    return body[key][0]
+                else:
+                    return body.get(key, [None])[0]
+
+            return {
+                'word':    get_from_body('word', required=True),
+                'context': get_from_body('context'),
+            }
+        except KeyError as err:
+            debug("Wrong data intercepted (must have word): " + str(body))
+            return None
 
     def do_POST(self):
-        print(get_requested_word())
+        debug("Handler: have some data intercepted")
+        interception = self.get_interception()
+
+        if not interception:
+            return
+
+        print(interception["word"])

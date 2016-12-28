@@ -26,4 +26,5 @@ class TestWords(ServerTest):
             'tword': ['быстро'],
             'word': ['quickly'],
         },
-        self.request(word_without_parent)
+        response = self.request(word_without_parent)
+        print(response)

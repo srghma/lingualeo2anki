@@ -1,0 +1,12 @@
+DEBUG: Word data will be writen to /home/bjorn/Documents/LINGUALEO/lingualeo2anki/tests/anki.csvDEBUG: Images will be saved to /home/bjorn/Documents/Anki/User 1/collection.mediaDEBUG: http server is running...listening on port 3100DEBUG: Signal handler called with signal 15DEBUG: Signal handler called with signal 2DEBUG: Word data will be writen to /home/bjorn/Documents/LINGUALEO/lingualeo2anki/tests/anki.csv
+DEBUG: Images will be saved to /home/bjorn/Documents/Anki/User 1/collection.media
+DEBUG: http server is running...listening on port 3100
+DEBUG: Signal handler called with signal 15
+DEBUG: Word data will be writen to /home/bjorn/Documents/LINGUALEO/lingualeo2anki/tests/anki.csv
+DEBUG: Images will be saved to /home/bjorn/Documents/Anki/User 1/collection.media
+DEBUG: http server is running...listening on port 3100
+DEBUG: Signal handler called with signal 15
+DEBUG: Word data will be writen to /home/bjorn/Documents/LINGUALEO/lingualeo2anki/tests/anki.csv
+DEBUG: Images will be saved to /home/bjorn/Documents/Anki/User 1/collection.media
+DEBUG: http server is running...listening on port 3100
+DEBUG: Signal handler called with signal 15

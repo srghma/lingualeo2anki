@@ -2,6 +2,7 @@ import sys
 from argparse import ArgumentParser
 from http.server import HTTPServer
 from os import path
+import signal
 
 from .handler import Handler
 from .config import config
@@ -42,17 +43,19 @@ def main():
     debug("Word data will be writen to %s", config.write_to_path)
     debug("Images will be saved to %s", config.images_dir_path)
 
-    try:
-        httpd = HTTPServer(config.server_address, Handler)
-        debug('http server is running...listening on port %s', config.port)
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        httpd.server_close()
-        sys.exit(0)
-    finally:
-        debug("finnaly")
-        httpd.server_close()
-        sys.exit(0)
+    server = None
+
+    def close_server(signum, frame):
+        debug("Signal handler called with signal %s", signum)
+        if server:
+            server.server_close()
+            sys.exit()
+
+    server = HTTPServer(config.server_address, Handler)
+    signal.signal(signal.SIGINT,  close_server)
+    signal.signal(signal.SIGTERM, close_server)
+    debug('http server is running...listening on port %s', config.port)
+    server.serve_forever()
 
 
 if __name__ == '__main__':

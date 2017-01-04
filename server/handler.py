@@ -1,12 +1,26 @@
 from http.server import SimpleHTTPRequestHandler
 import urllib
+import json
 
 from .utils import debug
 from .lingualeo import Translation
+from .errors import InvalidInterceptionError
 
 
 class Handler(SimpleHTTPRequestHandler):
 
+    # core
+    def do_POST(self):
+        try:
+            debug("Handler: have some data intercepted")
+            interception = self.get_interception()
+
+            print(interception["word"])
+        except InvalidInterceptionError as err:
+            self.send_json(422, {"message": err.message})
+            raise
+
+    # helpers
     def get_interception(self):
         try:
             body_lenght = int(self.headers['Content-Length'])
@@ -24,14 +38,18 @@ class Handler(SimpleHTTPRequestHandler):
                 'context': get_from_body('context'),
             }
         except KeyError as err:
-            debug("Wrong data intercepted (must have word): " + str(body))
-            return None
+            message = "Must have required fields: %s" % err.args
+            raise InvalidInterceptionError(message, rawbody) from err
 
-    def do_POST(self):
-        debug("Handler: have some data intercepted")
-        interception = self.get_interception()
+    def send_json(self, code, data):
+        string = json.dumps(data)
+        encoded = string.encode()
+        self.send_response(code)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(encoded)
 
-        if not interception:
-            return
-
-        print(interception["word"])
+    # every time server send responce - server logged it
+    # let's silent him
+    def log_message(self, format, *args):
+        return

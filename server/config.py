@@ -2,7 +2,7 @@ from os import path
 from collections import MutableMapping
 
 defaults = {
-    "write_to_path":   path.join(path.expanduser("~"), 'anki.csv'),
+    "csv_path":   path.join(path.expanduser("~"), 'anki.csv'),
     "images_dir_path": path.join(
         path.expanduser("~"), 'Documents', 'Anki', 'User 1', 'collection.media'
     ),
@@ -20,7 +20,7 @@ class ConfigHolder(object):
         self.__dict__.update(init)
 
     def update(self, other):
-        self.write_to_path   = other.write_to_path
+        self.csv_path        = other.csv_path
         self.images_dir_path = other.images_dir_path
         self.join_symbol     = other.join_symbol
         self.port            = other.port
@@ -31,12 +31,12 @@ class ConfigHolder(object):
         return (self.address, self.port)
 
     @property
-    def write_to_path(self):
-        return self.__dict__["write_to_path"]
+    def csv_path(self):
+        return self.__dict__["csv_path"]
 
-    @write_to_path.setter
-    def write_to_path(self, value):
-        self.__dict__["write_to_path"] = path.abspath(value)
+    @csv_path.setter
+    def csv_path(self, value):
+        self.__dict__["csv_path"] = path.abspath(value)
 
     @property
     def images_dir_path(self):

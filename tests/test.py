@@ -13,8 +13,15 @@ class TestAll(TestCase):
 
 class TestWords(ServerTest):
 
+    def testInvalidRequest(self):
+        data_without_word = {
+            'some': 'data',
+        }
+        response = self.request(data_without_word).json()
+        self.assertEqual(response, {'message': 'Must have required fields: word'})
+
     def testWordWithoutParent(self):
-        word_without_parent = {
+        data_without_parent = {
             'context': [
                 'A systray application to quickly change the JACK-DBus configuration from QjackCtl presets.',
             ],
@@ -25,6 +32,7 @@ class TestWords(ServerTest):
             'port': ['1001'],
             'tword': ['быстро'],
             'word': ['quickly'],
-        },
-        response = self.request(word_without_parent)
-        print(response)
+        }
+        response = self.request(data_without_parent).json()
+        self.assertEqual(response, {})
+        self.assertEqual(self.read_csv(), "data")

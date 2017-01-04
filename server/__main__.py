@@ -36,15 +36,15 @@ def main():
     create_file(config.csv_path)
 
     if not path.isdir(config.images_dir_path):
-        sys.exit("%s is wrong path to save images" % config.images_dir_path)
+        sys.exit("{} is wrong path to save images".format(config.images_dir_path))
 
-    debug("Word data will be writen to %s", config.csv_path)
-    debug("Images will be saved to %s", config.images_dir_path)
+    debug("Word data will be writen to {}", config.csv_path)
+    debug("Images will be saved to {}", config.images_dir_path)
 
     server = None
 
     def close_server(signum, frame):
-        debug("Server was closed by system signal %s", signum)
+        debug("Server was closed by system signal {}", signum)
         if server:
             server.server_close()
             sys.exit()
@@ -52,7 +52,7 @@ def main():
     server = HTTPServer(config.server_address, Handler)
     signal.signal(signal.SIGINT,  close_server)
     signal.signal(signal.SIGTERM, close_server)
-    debug('Listening port %s', config.port)
+    debug('Listening port {}', config.port)
     server.serve_forever()
 
 

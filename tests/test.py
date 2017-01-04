@@ -14,24 +14,15 @@ class TestAll(TestCase):
 class TestWords(ServerTest):
 
     def testInvalidRequest(self):
-        data_without_word = {
+        invalid_data = {
             'some': 'data',
         }
-        response = self.request(data_without_word).json()
+        response = self.request(invalid_data).json()
         self.assertEqual(response, {'message': 'Must have required fields: word'})
 
     def testWordWithoutParent(self):
         data_without_parent = {
-            'context': [
-                'A systray application to quickly change the JACK-DBus configuration from QjackCtl presets.',
-            ],
-            'context_title': [
-                'SpotlightKid/jack-select: A systray application to quickly change the JACK-DBus configuration from QjackCtl presets.',
-            ],
-            'context_url': ['https://github.com/SpotlightKid/jack-select'],
-            'port': ['1001'],
-            'tword': ['быстро'],
-            'word': ['quickly'],
+            'word': 'quickly',
         }
         response = self.request(data_without_parent).json()
         self.assertEqual(response, {})

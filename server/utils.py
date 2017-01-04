@@ -1,10 +1,13 @@
-from .config import config
 from os import path
+import pprint
+
+from .config import config
 
 
-def debug(str, *args):
+def debug(data, *args):
     if config.debug:
-        print("DEBUG: ", str % args)
+        args = [pprint.pformat(arg) for arg in args]
+        print("DEBUG: ", data.format(args))
 
 
 def create_file(file_path):

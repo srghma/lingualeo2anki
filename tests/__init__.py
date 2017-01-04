@@ -2,6 +2,7 @@ from unittest import TestCase
 from os import path, makedirs
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import requests
+import urllib
 import json
 import time
 
@@ -54,7 +55,7 @@ class ServerTest(TestCase):
 
     def request(self, data):
         server_url = 'http://localhost:%s' % config.port
-        encoded = json.dumps(data)
+        encoded = urllib.parse.urlencode(data)
         return requests.post(server_url, encoded)
 
     def read_csv(self):

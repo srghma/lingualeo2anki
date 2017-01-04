@@ -9,6 +9,3 @@ class InvalidInterceptionError(Error):
     def __init__(self, message, rawbody):
         self.message = message
         self.rawbody = rawbody
-
-    # def __repr__(self):
-    #     return ""

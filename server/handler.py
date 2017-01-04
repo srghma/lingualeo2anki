@@ -15,10 +15,10 @@ class Handler(SimpleHTTPRequestHandler):
             debug("Handler: have some data intercepted")
             interception = self.get_interception()
 
-            print(interception["word"])
+            translation = Translation.request(interception["word"])
+
         except InvalidInterceptionError as err:
             self.send_json(422, {"message": err.message})
-            raise
 
     # helpers
     def get_interception(self):
@@ -38,7 +38,8 @@ class Handler(SimpleHTTPRequestHandler):
                 'context': get_from_body('context'),
             }
         except KeyError as err:
-            message = "Must have required fields: %s" % err.args
+            fields = ", ".join(err.args)
+            message = "Must have required fields: {}".format(fields)
             raise InvalidInterceptionError(message, rawbody) from err
 
     def send_json(self, code, data):

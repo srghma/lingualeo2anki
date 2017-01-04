@@ -7,7 +7,7 @@ from .config import config
 def debug(data, *args):
     if config.debug:
         args = [pprint.pformat(arg) for arg in args]
-        print("DEBUG: ", data.format(args))
+        print("DEBUG: ", data.format(*args))
 
 
 def create_file(file_path):

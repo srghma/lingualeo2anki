@@ -19,7 +19,8 @@ class Translation:
         }
 
         response = requests.post(gettranslates_url, data).json()
-        debug("Request translation, get responce: {}", response)
+        debug("Request translation, get responce: \n{}", response)
+        return cls(response)
 
-    def __init__(self, rawdata):
-        self.rawdata = rawdata
+    def __init__(self, data):
+        self._data = data

@@ -27,7 +27,7 @@ class Handler(SimpleHTTPRequestHandler):
             if orig_form:
                 word = orig_form
                 parent = Translation.request(orig_form)
-                twords = parent.twords()
+                twords = parent.twords(preffered_translation=interception["tword"])
                 transcr = parent.transcr()
                 pic_name = parent.download_picture()
             else:

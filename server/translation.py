@@ -65,6 +65,8 @@ class Translation:
             index = twords.index(preffered_translation)
             if index and index != 0:
                 twords.insert(0, twords.pop(index))
+            else:
+                twords.insert(0, preffered_translation)
 
         return ', '.join(twords)
 

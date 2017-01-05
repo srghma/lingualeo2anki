@@ -4,7 +4,6 @@ from . import ServerTest
 from server.config import config
 from server.utils import dig
 from server.errors import DigError
-from .testdata import testdata_without_parent, testdata_with_parent
 
 
 class TestAll(TestCase):

@@ -56,18 +56,24 @@ def dig(dictionary, *keys, default=None, raise_error=False):
     return reduce(get_item, keys, dictionary)
 
 
-def download(url, file_name, directory, rewrite=False):
+def download(url, file_name, directory):
 
     """If file was downloaded successfully - return file_path"""
 
     file_path = path.join(directory, file_name)
-    if not path.isfile(file_path) or rewrite:
-        r = requests.get(url, stream=True)
-        if r.status_code == 200:
-            with open(file_path, 'wb') as f:
-                for chunk in r.iter_content():
-                    f.write(chunk)
-            return file_path
+
+    if path.isfile(file_path):
+        return file_path
+
+    r = requests.get(url, stream=True)
+
+    if r.status_code != 200:
+        return None
+
+    with open(file_path, 'wb') as f:
+        for chunk in r.iter_content():
+            f.write(chunk)
+    return file_path
 
 
 def write_asyncly(path, data):

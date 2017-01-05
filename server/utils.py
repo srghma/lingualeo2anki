@@ -33,7 +33,8 @@ def create_dir(dir_path):
 
 
 def recreate_dir(dir_path):
-    rmtree(dir_path)
+    if path.exists(dir_path):
+        rmtree(dir_path)
     makedirs(dir_path)
 
 

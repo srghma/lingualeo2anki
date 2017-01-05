@@ -1,6 +1,6 @@
-# lingualeo-extension-interceptor
+# lingualeo2anki
 
-1. Запустите приложение, используя python
+1. Запустите приложение
 ![2](https://cloud.githubusercontent.com/assets/7573215/8169784/8bf77b7a-13b4-11e5-9197-bbabf3e0143a.jpg)
 
 2. Щелкните на любой из переводов, слово запишется в таблицу, а изображение загрузится в папку Anki с изображениями
@@ -18,7 +18,7 @@
 
 ###Установка
 1. Установить python и модули, используемые в приложении (requests, simplejson, pprintpp). Рекомендуется использовать pip для установки модулей.
-2. Скачайте уже измененное [расширение](https://mega.co.nz/#F!8sFHjQZa!Tj0cZnarJo2N24SRFNWVMg) или измените его сами. 
+2. Скачайте уже измененное [расширение](https://mega.co.nz/#F!8sFHjQZa!Tj0cZnarJo2N24SRFNWVMg) или измените его сами.
     > Сделайте копию C:\Users\\<имя пользователя>\AppData\Local\Google\Chrome\User Data\Default\Extensions\nglbhlefjhcjockellmeclkcijildjhi\\<версия>\. В файле lingualeo\js\server.js измените g+lingualeo.config.ajax.addWordToDict на "http://localhost:3000". Удалите папку _metadata.
 
 3. Включите режим разработчика, добавьте расширение

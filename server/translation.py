@@ -62,10 +62,11 @@ class Translation:
         twords = [t['value'] for t in self.translations]
 
         if preffered_translation:
-            index = twords.index(preffered_translation)
-            if index and index != 0:
-                twords.insert(0, twords.pop(index))
-            else:
+            try:
+                index = twords.index(preffered_translation)
+                if index and index != 0:
+                    twords.insert(0, twords.pop(index))
+            except ValueError:
                 twords.insert(0, preffered_translation)
 
         return ', '.join(twords)

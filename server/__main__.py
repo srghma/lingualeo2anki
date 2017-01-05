@@ -29,6 +29,9 @@ def main():
     parser.add_argument("--debug", action='store_true', dest="debug",
                         default=config.debug)
 
+    parser.add_argument("--silent", action='store_true', dest="silent",
+                        default=config.silent)
+
     opts = parser.parse_args()
 
     config.update(opts)

@@ -12,6 +12,7 @@ defaults = {
     "port": 3100,
 
     "debug": False,
+    "silent": False,
 }
 
 
@@ -25,6 +26,7 @@ class ConfigHolder(object):
         self.join_symbol    = other.join_symbol
         self.port           = other.port
         self.debug          = other.debug
+        self.silent         = other.silent
 
     @property
     def server_address(self):

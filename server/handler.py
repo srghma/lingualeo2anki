@@ -1,6 +1,8 @@
 from http.server import SimpleHTTPRequestHandler
 import urllib
 import json
+from collections import OrderedDict
+from colorama import Fore, Back, Style
 
 from .utils import debug, dig, write_asyncly, bold, more_contexts
 from .translation import Translation
@@ -39,12 +41,16 @@ class Handler(SimpleHTTPRequestHandler):
             if context: extra_contexts.insert(0, context)
             context = "<br><br>".join(extra_contexts)
 
+            output = OrderedDict()
+            output["word"]     = word
+            output["twords"]   = twords
+            output["transcr"]  = transcr
+            output["pic_name"] = pic_name
+            output["context"]  = context
+
             self.send_json(200, translation.body)
-            self.write_to_csv(word,
-                              twords,
-                              transcr,
-                              pic_name,
-                              context)
+            self.write_to_csv(output)
+            self.print(output)
         except InvalidInterceptionError as err:
             self.send_json(422, {"message": err.message})
 
@@ -78,11 +84,27 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(encoded)
 
-    def write_to_csv(self, *args):
-        args = [' ' if arg is None else arg for arg in args]
-        output = config.join_symbol.join(args)
+    def write_to_csv(self, dictionary):
+        values = dictionary.values()
+        values = [' ' if value is None else value for value in values]
+
+        output = config.join_symbol.join(values)
         output += '\n'
         write_asyncly(config.csv_path, output)
+
+    def print(self, dictionary):
+        if config.silent:
+            return
+
+        print(Fore.WHITE + '{')
+        for key, value in dictionary.items():
+            buffer = '    ' + Fore.RED + key + ':\t'
+            if not value:
+                buffer += Style.DIM
+            buffer += Fore.GREEN + str(value)
+            buffer += Style.RESET_ALL
+            print(buffer)
+        print(Fore.WHITE + '}')
 
     # every time server send responce - server logged it
     # let's silent him

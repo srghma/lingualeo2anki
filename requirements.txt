@@ -1,4 +1,5 @@
 appdirs==1.4.0
+argh==0.26.2
 Beaker==1.8.1
 beautifulsoup4==4.5.1
 click==6.6
@@ -7,7 +8,9 @@ get==0.0.0
 goslate==1.5.1
 Mako==1.0.6
 MarkupSafe==0.23
+memoized-property==1.0.3
 packaging==16.8
+pathtools==0.1.2
 pep8==1.7.0
 post==0.0.0
 powerline-status==2.5
@@ -18,9 +21,12 @@ PyDictionary==1.5.2
 pygobject==3.22.0
 pyparsing==2.1.10
 pyxdg==0.25
+PyYAML==3.12
 query-string==0.0.0
 request==0.0.0
 requests==2.12.4
+rpdb==0.1.6
 setupfiles==0.0.0
 simplejson==3.10.0
 six==1.10.0
+watchdog==0.8.3

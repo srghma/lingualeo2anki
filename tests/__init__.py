@@ -7,13 +7,13 @@ import json
 import time
 
 from server.config import config
-from server.utils import create_dir
+from server.utils import create_dir, recreate_dir
 
 tests_dir_path = path.dirname(__file__)
 root_dir_path = path.dirname(tests_dir_path)
 output_dir_path = path.join(tests_dir_path, 'output')
 
-create_dir(output_dir_path)
+recreate_dir(output_dir_path)
 
 
 class ServerTest(TestCase):
@@ -57,6 +57,8 @@ class ServerTest(TestCase):
             self.server.communicate()
         finally:
             self.stdout_file.close()
+            # wait for server to stop
+            time.sleep(1)
 
     def request(self, data):
         server_url = 'http://localhost:%s' % config.port
@@ -67,5 +69,8 @@ class ServerTest(TestCase):
             return None
 
     def read_csv(self):
+        if not path.isfile(self.csv_path):
+            return None
+
         with open(self.csv_path, 'r') as csv:
             return csv.read()

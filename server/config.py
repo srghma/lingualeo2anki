@@ -2,16 +2,16 @@ from os import path
 from collections import MutableMapping
 
 defaults = {
-    "csv_path":   path.join(path.expanduser("~"), 'anki.csv'),
+    "csv_path": path.join(path.expanduser("~"), 'anki.csv'),
     "media_dir_path": path.join(
         path.expanduser("~"), 'Documents', 'Anki', 'User 1', 'collection.media'
     ),
 
-    "join_symbol":     '|',
-    "address":         '127.0.0.1',
-    "port":            3100,
+    "join_symbol": '|',
+    "address": '127.0.0.1',
+    "port": 3100,
 
-    "debug":           False,
+    "debug": False,
 }
 
 

@@ -50,24 +50,24 @@ class TestWords(ServerTest):
         invalid_data = {
             'some': 'data',
         }
-        response = self.request(invalid_data)
-        json = response.json()
-        self.assertEqual(json, {'message': 'Must have required field: word'})
+        resp = self.request(invalid_data).json()
+        self.assertEqual(resp, {'message': 'Must have required field: word'})
+        self.assertIsNone(self.read_csv())
 
     def testWordWithoutParent(self):
         data_without_parent = {
             'word': 'quickly',
         }
-        response = self.request(data_without_parent)
-        json = response.json()
-        self.assertEqual(json, {})
-        self.assertEqual(self.read_csv(), "data")
+        resp = self.request(data_without_parent).json()
+        self.assertTrue(resp)
+        self.assertTrue(self.read_csv().startswith('quickly|'))
 
     def testWordWithParent(self):
         data_with_parent = {
             'word': 'issues',
+            'context': 'There you can report issues',
+            'tword': 'проблемы',
         }
-        response = self.request(data_with_parent)
-        json = response.json()
-        self.assertEqual(json, {})
-        self.assertEqual(self.read_csv(), "data")
+        resp = self.request(data_with_parent).json()
+        self.assertTrue(resp)
+        self.assertTrue(self.read_csv().startswith('issue|'))

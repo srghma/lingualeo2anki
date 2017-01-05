@@ -6,6 +6,13 @@ class Error(Exception):
 class InvalidInterceptionError(Error):
     """docstring for InvalidInterceptionError"""
 
-    def __init__(self, message, rawbody):
+    def __init__(self, message):
         self.message = message
-        self.rawbody = rawbody
+
+
+class DigError(Error):
+    """for dig method in utils"""
+
+    def __init__(self, dictionary, key):
+        self.dictionary = dictionary
+        self.key = key

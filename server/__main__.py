@@ -6,7 +6,7 @@ import signal
 
 from .handler import Handler
 from .config import config
-from .utils import debug, create_file
+from .utils import debug
 
 
 def main():
@@ -16,9 +16,9 @@ def main():
                         help="write word data to FILE", metavar="FILE",
                         default=config.csv_path)
 
-    parser.add_argument("-i", "--images", dest="images_dir_path",
-                        help="save images to DIRECTORY", metavar="FILE",
-                        default=config.images_dir_path)
+    parser.add_argument("-m", "--media", dest="media_dir_path",
+                        help="save images and sound to DIRECTORY", metavar="FILE",
+                        default=config.media_dir_path)
 
     parser.add_argument("-j", "--join", dest="join_symbol",
                         default=config.join_symbol)
@@ -33,13 +33,11 @@ def main():
 
     config.update(opts)
 
-    create_file(config.csv_path)
-
-    if not path.isdir(config.images_dir_path):
-        sys.exit("{} is wrong path to save images".format(config.images_dir_path))
+    if not path.isdir(config.media_dir_path):
+        sys.exit("{} is wrong path to save images".format(config.media_dir_path))
 
     debug("Word data will be writen to {}", config.csv_path)
-    debug("Images will be saved to {}", config.images_dir_path)
+    debug("Images will be saved to {}", config.media_dir_path)
 
     server = None
 

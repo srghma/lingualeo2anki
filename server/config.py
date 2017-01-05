@@ -3,7 +3,7 @@ from collections import MutableMapping
 
 defaults = {
     "csv_path":   path.join(path.expanduser("~"), 'anki.csv'),
-    "images_dir_path": path.join(
+    "media_dir_path": path.join(
         path.expanduser("~"), 'Documents', 'Anki', 'User 1', 'collection.media'
     ),
 
@@ -20,11 +20,11 @@ class ConfigHolder(object):
         self.__dict__.update(init)
 
     def update(self, other):
-        self.csv_path        = other.csv_path
-        self.images_dir_path = other.images_dir_path
-        self.join_symbol     = other.join_symbol
-        self.port            = other.port
-        self.debug           = other.debug
+        self.csv_path       = other.csv_path
+        self.media_dir_path = other.media_dir_path
+        self.join_symbol    = other.join_symbol
+        self.port           = other.port
+        self.debug          = other.debug
 
     @property
     def server_address(self):
@@ -39,12 +39,12 @@ class ConfigHolder(object):
         self.__dict__["csv_path"] = path.abspath(value)
 
     @property
-    def images_dir_path(self):
-        return self.__dict__["images_dir_path"]
+    def media_dir_path(self):
+        return self.__dict__["media_dir_path"]
 
-    @images_dir_path.setter
-    def images_dir_path(self, value):
-        self.__dict__["images_dir_path"] = path.abspath(value)
+    @media_dir_path.setter
+    def media_dir_path(self, value):
+        self.__dict__["media_dir_path"] = path.abspath(value)
 
 
 config = ConfigHolder()

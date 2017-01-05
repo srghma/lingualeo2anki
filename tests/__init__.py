@@ -1,5 +1,5 @@
 from unittest import TestCase
-from os import path, makedirs
+from os import path
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import requests
 import urllib
@@ -7,30 +7,35 @@ import json
 import time
 
 from server.config import config
+from server.utils import create_dir
 
-test_dir_path = path.dirname(__file__)
-root_dir_path = path.dirname(test_dir_path)
-log_dir_path  = path.join(test_dir_path, 'logs')
+tests_dir_path = path.dirname(__file__)
+root_dir_path = path.dirname(tests_dir_path)
+output_dir_path = path.join(tests_dir_path, 'output')
 
-if not path.exists(log_dir_path):
-    makedirs(log_dir_path)
+create_dir(output_dir_path)
 
 
 class ServerTest(TestCase):
 
     def setUp(self):
-        current_test_name = self.id().split('.')[-1]
+        test_name = self.id().split('.')[-1]
 
-        debug_name = current_test_name + '.log'
-        debug_path = path.join(log_dir_path, debug_name)
-        self.debug_file = open(debug_path, 'w')
+        test_dir_path = path.join(output_dir_path, test_name)
+        create_dir(test_dir_path)
 
-        csv_name = current_test_name + '.csv'
-        self.csv_path = path.join(log_dir_path, csv_name)
+        stdout_path = path.join(test_dir_path, 'stdout.log')
+        self.stdout_file = open(stdout_path, 'w')
+
+        self.csv_path = path.join(test_dir_path, 'anki.csv')
+
+        self.media_dir_path = path.join(test_dir_path, 'media')
+        create_dir(self.media_dir_path)
 
         cmd = [
             'python', '-m', 'server',
             '-f', self.csv_path,
+            '-m', self.media_dir_path,
             '--debug'
         ]
 
@@ -39,7 +44,7 @@ class ServerTest(TestCase):
                             cwd=root_dir_path,
                             # start_new_session=True,
                             # shell=True, # XXX: dont use - no output
-                            stdout=self.debug_file,
+                            stdout=self.stdout_file,
                             stderr=STDOUT)
         # wait for server to start
         time.sleep(1)
@@ -51,12 +56,15 @@ class ServerTest(TestCase):
             self.server.terminate()
             self.server.communicate()
         finally:
-            self.debug_file.close()
+            self.stdout_file.close()
 
     def request(self, data):
         server_url = 'http://localhost:%s' % config.port
         encoded = urllib.parse.urlencode(data)
-        return requests.post(server_url, encoded)
+        try:
+            return requests.post(server_url, encoded)
+        except requests.exceptions.ConnectionError:
+            return None
 
     def read_csv(self):
         with open(self.csv_path, 'r') as csv:

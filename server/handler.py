@@ -113,8 +113,6 @@ class Handler(SimpleHTTPRequestHandler):
 
         for key, value in dictionary.items():
             buffer = Fore.RED + key + ':\t'
-            if not value:
-                buffer += Style.DIM
             buffer += Fore.GREEN + str(value)
             buffer += Style.RESET_ALL
             print(buffer)

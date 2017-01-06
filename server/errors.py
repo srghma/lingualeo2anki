@@ -13,6 +13,6 @@ class InvalidInterceptionError(Error):
 class DigError(Error):
     """for dig method in utils"""
 
-    def __init__(self, dictionary, key):
+    def __init__(self, dictionary, path):
         self.dictionary = dictionary
-        self.key = key
+        self.path = path

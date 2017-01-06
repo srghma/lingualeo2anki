@@ -40,20 +40,17 @@ def recreate_dir(dir_path):
 
 def dig(dictionary, *keys, default=None, raise_error=False):
 
-    def get_item(end_of_chain, key):
-        if end_of_chain == default:
+    end_of_chain = dictionary
+    try:
+        for key in keys:
+            end_of_chain = end_of_chain[key]
+    except (KeyError, IndexError) as err:
+        if raise_error:
+            raise DigError(dictionary, keys) from err
+        else:
             return default
 
-        try:
-            output = end_of_chain[key]
-            return output
-        except (KeyError, IndexError, TypeError) as err:
-            if raise_error:
-                raise DigError(dictionary, key) from err
-            else:
-                return default
-
-    return reduce(get_item, keys, dictionary)
+    return end_of_chain
 
 
 def download(url, file_name, directory):

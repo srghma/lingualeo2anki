@@ -88,7 +88,7 @@ class Handler(SimpleHTTPRequestHandler):
                 'tword': get_from_body('tword'),  # translation, that user have picked
             }
         except DigError as err:
-            message = "Must have required field: {}".format(err.key)
+            message = "Must have required field: {}".format(err.path[0])
             raise InvalidInterceptionError(message) from err
 
     def send_json(self, code, data):

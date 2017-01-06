@@ -3,8 +3,9 @@ import urllib
 import json
 from collections import OrderedDict
 from colorama import Fore, Back, Style
+from memoized_property import memoized_property
 
-from .utils import debug, dig, write_asyncly, bold, more_contexts
+from .utils import debug, dig, write_asyncly, bold, request_usage_examples, clean
 from .translation import Translation
 from .errors import InvalidInterceptionError, DigError
 from .config import config
@@ -15,47 +16,61 @@ class Handler(SimpleHTTPRequestHandler):
     # core
     def do_POST(self):
         try:
-            interception = self.get_interception()
-            word = interception["word"]
-            context = interception["context"]
-
-            if context: context = bold(context, word)
-
-            translation = Translation.request(word)
+            translation = Translation.request(self.interception["word"])
             orig_form = translation.orig_form()
 
-            if orig_form:
-                word = orig_form
-                parent = Translation.request(orig_form)
-                twords = parent.twords(preffered_translation=interception["tword"])
-                transcr = parent.transcr()
-                pic_name = parent.download_picture()
-            else:
-                twords = translation.twords(preffered_translation=interception["tword"])
+            if not orig_form:
+                word = self.interception["word"]
+                twords = translation.twords(preffered_translation=self.interception["tword"])
                 transcr = translation.transcr()
                 pic_name = translation.download_picture()
+            else:
+                word = orig_form
+                parent = Translation.request(orig_form)
+                twords = parent.twords(preffered_translation=self.interception["tword"])
+                transcr = parent.transcr()
+                pic_name = parent.download_picture()
 
-            extra_contexts_count = 2 if context else 3
-            extra_contexts = more_contexts(word, extra_contexts_count)
-            extra_contexts = [bold(context, word) for context in extra_contexts]
-            if context: extra_contexts.insert(0, context)
-            context = "<br><br>".join(extra_contexts)
+            usage_examples = self.make_usage_examples(
+                amount=3,
+                word=word,
+                include_context=True)
 
             output = OrderedDict()
             output["word"]     = word
             output["twords"]   = twords
             output["transcr"]  = transcr
             output["pic_name"] = pic_name
-            output["context"]  = context
+            output["usage_examples"] = usage_examples
 
             self.send_json(200, translation.body)
             self.write_to_csv(output)
             self.print(output)
         except InvalidInterceptionError as err:
+            debug("InvalidInterceptionError occured: {}", err.message)
             self.send_json(422, {"message": err.message})
 
+    def make_usage_examples(self, amount, word, include_context):
+        context = self.interception['context'] if include_context else None
+        request_amount = amount
+
+        if context:
+            request_amount -= 1
+            context = clean(context)
+            context = bold(context, self.interception["word"])
+
+        examples = request_usage_examples(word, request_amount)
+        examples = clean(examples)
+        examples = bold(examples, word)
+
+        if context:
+            examples.insert(0, context)
+
+        return "<br><br>".join(examples)
+
     # helpers
-    def get_interception(self):
+    @memoized_property
+    def interception(self):
         body_lenght = int(self.headers['Content-Length'])
         rawbody = self.rfile.read(body_lenght).decode("utf-8")
 
@@ -96,15 +111,14 @@ class Handler(SimpleHTTPRequestHandler):
         if config.silent:
             return
 
-        print(Fore.WHITE + '{')
         for key, value in dictionary.items():
-            buffer = '    ' + Fore.RED + key + ':\t'
+            buffer = Fore.RED + key + ':\t'
             if not value:
                 buffer += Style.DIM
             buffer += Fore.GREEN + str(value)
             buffer += Style.RESET_ALL
             print(buffer)
-        print(Fore.WHITE + '}')
+        print('\n')
 
     # every time server send responce - server logged it
     # let's silent him

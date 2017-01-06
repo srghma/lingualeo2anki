@@ -84,23 +84,27 @@ def write_asyncly(path, data):
     Thread(target=write, args=(path, data)).start()
 
 
-def bold(string, target):
-    return string.replace(target, "<b>" + target + "</b>")
-
-
-def more_contexts(word, amount):
+def request_usage_examples(word, amount):
     url = "http://dictionary.reference.com/browse/{}".format(word)
     try:
         page = requests.get(url).text
         soup = BeautifulSoup(page, "html.parser")
-        contexts = soup.find_all(class_="partner-example-text", limit=amount)
+        examples = soup.find_all(class_="partner-example-text", limit=amount)
+        examples = [example.getText() for example in examples]
 
-        contexts = (context.getText() for context in contexts)
-        contexts = clean(contexts)
-
-        return list(contexts)
+        return examples
     except requests.exceptions.Timeout:
         return None
+
+
+def bold(data, word):
+    def bold_string(string, word):
+        return string.replace(word, "<b>" + word + "</b>")
+
+    if isinstance(data, str):
+        return bold_string(data, word)
+
+    return [bold_string(item, word) for item in data]
 
 
 def clean(data, prohibited_chars=None):

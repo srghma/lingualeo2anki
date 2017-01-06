@@ -1,6 +1,5 @@
 import urllib
 import requests
-from memoized_property import memoized_property
 
 from .config import config
 from .utils import debug, dig, download
@@ -41,25 +40,12 @@ class Translation:
     def download_sound(self):
         return self._download_media('sound_url')
 
-    @memoized_property
-    def translations(self):
-
-        """ sorted and unique """
-
-        sorted_tr = sorted(self.body['translate'], key=lambda t: t['votes'])
-        unique = {}
-        for translation in sorted_tr:
-            value = translation['value']
-            if value not in unique:
-                unique[value] = translation
-        return unique.values()
-
     def twords(self, preffered_translation=None):
 
         """ collect values, return string """
         """ if translation was preffered - it will be on top """
 
-        twords = [t['value'] for t in self.translations]
+        twords = [t['value'] for t in self._translations()]
 
         if preffered_translation:
             try:
@@ -73,6 +59,18 @@ class Translation:
 
     def transcr(self):
         return dig(self.body, 'transcription')
+
+    def _translations(self):
+
+        """ sorted and unique """
+
+        sorted_tr = sorted(self.body['translate'], key=lambda t: t['votes'])
+        unique = {}
+        for translation in sorted_tr:
+            value = translation['value']
+            if value not in unique:
+                unique[value] = translation
+        return unique.values()
 
     def _download_media(self, field):
         media_url = dig(self.body, field)

@@ -27,14 +27,14 @@ class ServerTest(TestCase):
         stdout_path = path.join(test_dir_path, 'stdout.log')
         self.stdout_file = open(stdout_path, 'w')
 
-        self.csv_path = path.join(test_dir_path, 'anki.csv')
+        self.output_file_path = path.join(test_dir_path, 'anki.txt')
 
         self.media_dir_path = path.join(test_dir_path, 'media')
         create_dir(self.media_dir_path)
 
         cmd = [
             'python', '-m', 'server',
-            '-f', self.csv_path,
+            '-f', self.output_file_path,
             '-m', self.media_dir_path,
             '--debug'
         ]
@@ -69,8 +69,8 @@ class ServerTest(TestCase):
             return None
 
     def read_csv(self):
-        if not path.isfile(self.csv_path):
+        if not path.isfile(self.output_file_path):
             return None
 
-        with open(self.csv_path, 'r') as csv:
+        with open(self.output_file_path, 'r') as csv:
             return csv.read()

@@ -59,7 +59,7 @@ class TestWords(ServerTest):
         }
         resp = self.request(data_without_parent).json()
         self.assertTrue(resp)
-        self.assertTrue(self.read_csv().startswith('quickly|'))
+        self.assertTrue(self.read_csv().startswith('quickly\t'))
 
     def testWordWithParent(self):
         data_with_parent = {
@@ -69,4 +69,4 @@ class TestWords(ServerTest):
         }
         resp = self.request(data_with_parent).json()
         self.assertTrue(resp)
-        self.assertTrue(self.read_csv().startswith('issue|'))
+        self.assertTrue(self.read_csv().startswith('issue\t'))

@@ -2,12 +2,12 @@ from os import path
 from collections import MutableMapping
 
 defaults = {
-    "csv_path": path.join(path.expanduser("~"), 'anki.csv'),
+    "output_file_path": path.join(path.expanduser("~"), 'anki.txt'),
     "media_dir_path": path.join(
         path.expanduser("~"), 'Documents', 'Anki', 'User 1', 'collection.media'
     ),
 
-    "join_symbol": '|',
+    "join_symbol": '\t',
     "address": '127.0.0.1',
     "port": 3100,
 
@@ -21,24 +21,24 @@ class ConfigHolder(object):
         self.__dict__.update(init)
 
     def update(self, other):
-        self.csv_path       = other.csv_path
-        self.media_dir_path = other.media_dir_path
-        self.join_symbol    = other.join_symbol
-        self.port           = other.port
-        self.debug          = other.debug
-        self.silent         = other.silent
+        self.output_file_path = other.output_file_path
+        self.media_dir_path   = other.media_dir_path
+        self.join_symbol      = other.join_symbol
+        self.port             = other.port
+        self.debug            = other.debug
+        self.silent           = other.silent
 
     @property
     def server_address(self):
         return (self.address, self.port)
 
     @property
-    def csv_path(self):
-        return self.__dict__["csv_path"]
+    def output_file_path(self):
+        return self.__dict__["output_file_path"]
 
-    @csv_path.setter
-    def csv_path(self, value):
-        self.__dict__["csv_path"] = path.abspath(value)
+    @output_file_path.setter
+    def output_file_path(self, value):
+        self.__dict__["output_file_path"] = path.abspath(value)
 
     @property
     def media_dir_path(self):

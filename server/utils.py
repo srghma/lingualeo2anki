@@ -106,7 +106,7 @@ def bold(data, word):
 
 def clean(data, prohibited_chars=None):
     if prohibited_chars is None:
-        prohibited_chars = ' \t\n\r'  # trailing whitespace and newlines
+        prohibited_chars = ' \n\r'  # trailing whitespace and newlines
         prohibited_chars += config.join_symbol
 
     def clean_string(string, prohibited_chars):

@@ -12,9 +12,9 @@ from .utils import debug
 def main():
     parser = ArgumentParser()
 
-    parser.add_argument("-f", "--file", dest="csv_path",
+    parser.add_argument("-f", "--file", dest="output_file_path",
                         help="write word data to FILE", metavar="FILE",
-                        default=config.csv_path)
+                        default=config.output_file_path)
 
     parser.add_argument("-m", "--media", dest="media_dir_path",
                         help="save images and sound to DIRECTORY", metavar="FILE",
@@ -39,7 +39,7 @@ def main():
     if not path.isdir(config.media_dir_path):
         sys.exit("{} is wrong path to save images".format(config.media_dir_path))
 
-    debug("Word data will be writen to {}", config.csv_path)
+    debug("Word data will be writen to {}", config.output_file_path)
     debug("Images will be saved to {}", config.media_dir_path)
 
     server = None

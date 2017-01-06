@@ -105,7 +105,7 @@ class Handler(SimpleHTTPRequestHandler):
 
         output = config.join_symbol.join(values)
         output += '\n'
-        write_asyncly(config.csv_path, output)
+        write_asyncly(config.output_file_path, output)
 
     def print(self, dictionary):
         if config.silent:

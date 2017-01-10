@@ -27,7 +27,7 @@ class Handler(SimpleHTTPRequestHandler):
             else:
                 word = orig_form
                 parent = Translation.request(orig_form)
-                twords = parent.twords(preffered_translation=self.interception["tword"])
+                twords = parent.twords()
                 transcr = parent.transcr()
                 pic_name = parent.download_picture()
 
@@ -57,6 +57,8 @@ class Handler(SimpleHTTPRequestHandler):
         if context:
             request_amount -= 1
             context = clean(context)
+            word_with_tword = "{} ({})".format(self.interception["word"], self.interception["tword"])
+            context = context.replace(self.interception["word"], word_with_tword)
             context = bold(context, self.interception["word"])
 
         examples = request_usage_examples(word, request_amount)

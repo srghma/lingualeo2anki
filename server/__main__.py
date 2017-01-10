@@ -23,7 +23,7 @@ def main():
     parser.add_argument("-j", "--join", dest="join_symbol",
                         default=config.join_symbol)
 
-    parser.add_argument("-p", dest="port",
+    parser.add_argument("-p", dest="port", type=int,
                         default=config.port)
 
     parser.add_argument("--debug", action='store_true', dest="debug",

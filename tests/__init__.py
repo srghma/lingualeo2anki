@@ -6,7 +6,6 @@ import urllib
 import json
 import time
 
-from server.config import config
 from server.utils import create_dir, recreate_dir
 
 tests_dir_path = path.dirname(__file__)
@@ -32,8 +31,10 @@ class ServerTest(TestCase):
         self.media_dir_path = path.join(test_dir_path, 'media')
         create_dir(self.media_dir_path)
 
+        self.port = 3101
         cmd = [
             'python', '-m', 'server',
+            '-p', str(self.port),
             '-f', self.output_file_path,
             '-m', self.media_dir_path,
             '--debug'
@@ -61,7 +62,7 @@ class ServerTest(TestCase):
             time.sleep(1)
 
     def request(self, data):
-        server_url = 'http://localhost:%s' % config.port
+        server_url = 'http://localhost:%s' % self.port
         encoded = urllib.parse.urlencode(data)
         try:
             return requests.post(server_url, encoded)

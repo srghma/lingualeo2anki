@@ -33,9 +33,9 @@ pythonPackages.buildPythonApplication rec {
     memoized-property
   ];
 
-  # didn't help
+  # this maybe could help, but nix throws error `/bin/sh: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)`
   # preConfigure = ''
-  #   export LANG="en_US.UTF-8"
+  #   export LC_ALL="en_US.UTF-8"
   # '';
 
   meta = {

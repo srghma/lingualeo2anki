@@ -40,7 +40,7 @@ pythonPackages.buildPythonApplication rec {
 
   meta = {
     homepage = https://github.com/BjornMelgaard/lingualeo2anki;
-    description = "Hack lingualeo chrome plugin and save dictionary locally, ready to anki import";
+    description = "Hack lingualeo chrome plugin and save dictionary locally, ready for anki import";
     license = lib.licenses.mit;
     platforms = lib.platforms.all;
   };

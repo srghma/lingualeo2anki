@@ -33,11 +33,6 @@ pythonPackages.buildPythonApplication rec {
     memoized-property
   ];
 
-  # didn't help
-  # preConfigure = ''
-  #   export LANG="en_US.UTF-8"
-  # '';
-
   meta = {
     homepage = https://github.com/BjornMelgaard/lingualeo2anki;
     description = "Hack lingualeo chrome plugin and save dictionary locally, ready for anki import";

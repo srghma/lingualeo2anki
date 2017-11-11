@@ -1,0 +1,69 @@
+CHANGES
+=======
+
+* Create README.en.md
+* better start\_server
+* if orig\_word - tword go in context
+* tab as join
+* tab as join
+* better dig
+* make\_usage\_examples
+* change download behavior
+* pref\_tr fix
+* pref\_tr fix
+* start\_server fix
+* readme
+* rem testdata
+* readme
+* recreate\_dir fix
+* merge
+* remove all
+* with output
+* done
+* many rewrited
+* debug with pp
+* newline issue in log with pp
+* working
+* Failed to establish a new connection from request
+* issue fixed, write request method
+* gitignore
+* need help
+* work, but no output
+* somth printed if in shell
+* working tests
+* the same, with communicate
+* sh dont allow to close server
+* sh dont allow to close server
+* ыщьу
+* on the way
+* testdata
+* print responses
+* +++
+* requrements, lint
+* Update README.md
+* Update README.md
+* merge with server branch
+* merge with server branch
+* minor
+* minor
+* minor
+* multiple word issue
+* refactoring
+* multiline transcr and pic abscence issue
+* enhance context extraction and solved context KeyError
+* refactoring
+* now sniffer handle all packets
+* fix errors on windows
+* byte literal to utf-8 and minor
+* fixed stupid error
+* minor
+* Added automatic ip searching and minor changes
+* Update README.md
+* Update README.md
+* change functionality on sniffer
+* Update README.md
+* Update README.md
+* Update README.md
+* Update README.md
+* first commit
+* Initial commit

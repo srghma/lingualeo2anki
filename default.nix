@@ -22,21 +22,24 @@ pythonPackages.buildPythonApplication rec {
 
   src = ./.;
 
-  buildInputs = with pipPackages; with pythonPackages; [
+  buildInputs = with pythonPackages; [
     python
     pbr
     git
+    glibcLocales
+  ];
 
+  propagatedBuildInputs = with pipPackages; [
     colorama
     requests
     beautifulsoup4
     memoized-property
   ];
 
-  # this maybe could help, but nix throws error `/bin/sh: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)`
-  # preConfigure = ''
-  #   export LC_ALL="en_US.UTF-8"
-  # '';
+  # will fail with `UnicodeEncodeError: 'ascii' codec can't encode` without this
+  preConfigure = ''
+    export LC_ALL="en_US.UTF-8"
+  '';
 
   meta = {
     homepage = https://github.com/BjornMelgaard/lingualeo2anki;
@@ -45,3 +48,4 @@ pythonPackages.buildPythonApplication rec {
     platforms = lib.platforms.all;
   };
 }
+

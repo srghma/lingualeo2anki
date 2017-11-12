@@ -1,6 +1,5 @@
 {
-  pkgs ? import <nixpkgs> {},
-  git,
+  pkgs ? import <nixpkgs> {}
 }:
 
 with pkgs;
@@ -26,14 +25,15 @@ pythonPackages.buildPythonApplication rec {
 
   src = ./.;
 
-  buildInputs = with pythonPackages; [
+  buildInputs = [
     python
-    pbr
-    git
     glibcLocales
   ];
 
   propagatedBuildInputs = with pipPackages; [
+    pythonPackages.pbr
+    git
+
     colorama
     requests
     beautifulsoup4

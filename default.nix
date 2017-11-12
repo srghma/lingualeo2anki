@@ -21,19 +21,17 @@ pythonPackages.buildPythonApplication rec {
   pname = "lingualeo2anki";
   version = "0.0.1";
   name = "${pname}-${version}";
-  namePrefix = "";
 
   src = ./.;
 
   buildInputs = [
     python
+    pythonPackages.pbr
+    git
     glibcLocales
   ];
 
   propagatedBuildInputs = with pipPackages; [
-    pythonPackages.pbr
-    git
-
     colorama
     requests
     beautifulsoup4

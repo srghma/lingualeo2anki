@@ -26,8 +26,6 @@ pythonPackages.buildPythonApplication rec {
 
   buildInputs = [
     python
-    # pythonPackages.pbr
-    git
     glibcLocales
   ];
 

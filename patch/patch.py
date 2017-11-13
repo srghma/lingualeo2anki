@@ -5,7 +5,7 @@ from os import path
 import fileinput
 
 home = path.expanduser("~")
-
+port = 3100
 default_path = ".config/google-chrome/Default/Extensions/nglbhlefjhcjockellmeclkcijildjhi/2.0.3.3_0"
 
 def main():
@@ -17,10 +17,13 @@ def main():
     parser.add_argument("save_to", metavar="DIR",
                         default=path.join(home, 'Downloads/lingualeo-patched'), nargs="?")
 
+    parser.add_argument("-p", dest="port", type=int,
+                        default=3100)
+
     opts = parser.parse_args()
 
     if not path.isdir(opts.get_from):
-        sys.exit("{} is wrong path to extention".format(opts.save_to))
+        sys.exit("{} is wrong path to extention".format(opts.get_from))
 
     print("-- Patched extention from", opts.get_from)
     print("-- Patched extention will be saved to", opts.save_to)
@@ -30,8 +33,8 @@ def main():
 
     shutil.copytree(opts.get_from, opts.save_to, ignore=shutil.ignore_patterns('_metadata'))
 
-    textToSearch = "g+lingualeo.config.ajax.addWordToDict"
-    textToReplace = "\"http://localhost:3000\""
+    textToSearch = "g+lingualeo.config.ajax.addWordToDict,"
+    textToReplace = "\"http://localhost:" + str(opts.port) + "\","
 
     fileToSearch = path.join(opts.save_to, 'lingualeo/js/server.js')
 

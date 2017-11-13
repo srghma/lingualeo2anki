@@ -8,10 +8,12 @@ setup(
     author_email="melgaardbjorn@gmail.com",
     packages=[
         'server',
+        'patch',
     ],
     entry_points={
         "console_scripts": [
             "lingualeo2anki=server.__main__:main"
+            "lingualeo2anki-patch=patch.patch:main"
         ]
     },
     test_suite="tests",

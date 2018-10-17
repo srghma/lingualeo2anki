@@ -16,7 +16,7 @@
 ![6](https://cloud.githubusercontent.com/assets/7573215/8169796/95c6b422-13b4-11e5-9727-7f548dcc01dd.jpg)
 
 
-###Установка
+### Установка
 1. Установить python и модули, используемые в приложении (requests, simplejson, pprintpp). Рекомендуется использовать pip для установки модулей.
 2. Скачайте уже измененное [расширение](https://mega.co.nz/#F!8sFHjQZa!Tj0cZnarJo2N24SRFNWVMg) или измените его сами.
     > Сделайте копию C:\Users\\<имя пользователя>\AppData\Local\Google\Chrome\User Data\Default\Extensions\nglbhlefjhcjockellmeclkcijildjhi\\<версия>\. В файле lingualeo\js\server.js измените g+lingualeo.config.ajax.addWordToDict на "http://localhost:3000". Удалите папку _metadata.
